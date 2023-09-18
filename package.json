@@ -9,15 +9,30 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:**/Cargo.toml"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "test-fs.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "test-fs.addFile",
+        "title": "Add File"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "test-fs.addFile",
+          "group": "1_modification",
+          "when": "resourceLangId  == rust"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
