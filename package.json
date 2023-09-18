@@ -1,6 +1,6 @@
 {
-  "name": "test-fs",
-  "displayName": "test-fs",
+  "name": "rust-project",
+  "displayName": "rust-project",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -16,18 +16,18 @@
   "contributes": {
     "commands": [
       {
-        "command": "test-fs.helloWorld",
+        "command": "rust-project.helloWorld",
         "title": "Hello World"
       },
       {
-        "command": "test-fs.addFile",
+        "command": "rust-project.addFile",
         "title": "Add File"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "test-fs.addFile",
+          "command": "rust-project.addFile",
           "group": "1_modification",
           "when": "resourceLangId  == rust"
         }
