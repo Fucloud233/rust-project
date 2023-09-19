@@ -9,10 +9,18 @@ export function activate(context: vscode.ExtensionContext) {
 	// console.log(context.asAbsolutePath("."));
 
 	// 查找根目录
+	let rootUri: vscode.Uri;
 	let entries = vscode.workspace.workspaceFolders;
 	if (entries !== undefined) {
-		handle(entries[0].uri);
+		rootUri = entries[0].uri;
 	}
+	
+    // 当创建文件的时候激活
+    const watcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
+    watcher.onDidCreate(async (fileUri: vscode.Uri) => {
+		handle(rootUri, fileUri);
+ 	});
+
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
