@@ -18,9 +18,9 @@ async function getSysroot(): Promise<string> {
     const cmd = "rustc --print sysroot";
 
     return execShell(cmd)
-        .then((o) => { return o;})
+        .then((o) => { return o.trim();})
         .catch(()=>{
-            // 需要对异常进行处理
+            // TODO: 需要对异常进行处理
             return "";
         });
 };
