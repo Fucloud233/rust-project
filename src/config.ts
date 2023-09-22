@@ -1,4 +1,10 @@
 import * as cp from 'child_process';
+import * as vscode from 'vscode';
+
+export const EXTENSION_NAME = "rust-project";
+export const PROJECT_INFO = "projectInfo";
+export const SYSROOT = "sysroot";
+export const DEFAULT_EDITION = "defaultEdition";
 
 const execShell = (cmd: string) => 
     new Promise<string>((resolve, reject) => {
@@ -14,21 +20,41 @@ const execShell = (cmd: string) =>
 
 
 // 获取sysroot的路径
-async function getSysroot(): Promise<string> {
-    const cmd = "rustc --print sysroot";
+function initSysroot() {
+    const projectInfo = getProjectInfo();
 
-    return execShell(cmd)
-        .then((o) => { return o.trim();})
-        .catch(()=>{
-            // TODO: 需要对异常进行处理
-            return "";
-        });
+    // 当空的时候自动生成
+    const value = projectInfo.get(SYSROOT);
+    if (value === undefined || value === "") {
+        const cmd = "rustc --print sysroot";
+        execShell(cmd)
+            .then((o) => { 
+                // 更新项目信息
+                projectInfo.update(SYSROOT, o.trim(), true);
+            })
+            .catch(()=>{
+                // TODO: 需要对异常进行处理
+                return "";
+            });
+    }
 };
 
-export class Config {
-    static sysroot: string = "";
+// 初始化配置
+export function initConfig() {
+    initSysroot();
+}
 
-    static async init() {
-        Config.sysroot = await getSysroot();
+export function getConfig(section: string): any {
+    section = EXTENSION_NAME + "." + section;
+    return vscode.workspace.getConfiguration(section);
+}
+
+// 获取ProjectInfo 信息
+export function getProjectInfo(section: string = ""): any {
+    const projectInfo = getConfig(PROJECT_INFO);
+    if(section === "") {
+        return projectInfo;
+    } else {
+        return projectInfo.get(section);
     }
 }

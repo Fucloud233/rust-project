@@ -32,6 +32,22 @@
           "when": "resourceLangId  == rust"
         }
       ]
+    },
+    "configuration": {
+      "title": "rust-project",
+      "properties": {
+        "rust-project.projectInfo.sysroot": {
+          "description": "Path to the sysroot directory.The sysroot is where rustc looks for the crates that are built-in to rust, such as std.",
+          "type": "string",
+          "default": ""
+        },
+        "rust-project.projectInfo.defaultEdition": {
+          "description": "Edition of the crate.",
+          "type": "string",
+          "enum": ["2015", "2018", "2021"],
+          "default": "2021"
+        }
+      }
     }
   },
   "scripts": {
