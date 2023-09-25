@@ -36,6 +36,7 @@ export async function readJsonFile(fileUri: vscode.Uri): Promise<any | undefined
 
         return JSON.parse(dataStr);
     } catch (error) {
+        // FIXME: 捕获解析失败的错误
         throw error;
     }
 }
@@ -43,6 +44,7 @@ export async function readJsonFile(fileUri: vscode.Uri): Promise<any | undefined
 // 写入文件
 export async function writeFile(fileUri: vscode.Uri, content: Uint8Array) {
     await vscode.workspace.fs.writeFile(fileUri, content).then(
+        // FIXME: 捕获文件是否存在
         ()=>{}, (reason) => {
             throw new vscode.FileSystemError(reason);
         }

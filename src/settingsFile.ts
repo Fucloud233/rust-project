@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {Uri} from 'vscode';
 import * as path from 'path';
 
@@ -19,7 +18,7 @@ export class SettingsFile {
     }
 
     // 读取文件
-    private async load() {
+    async load() {
         try {
             // 读取settings文件
             if(await checkFile(this.settingsUri)) {
@@ -39,7 +38,7 @@ export class SettingsFile {
     }
 
     // 保存文件
-    private async save() {
+    async save() {
         try{
             // console.log(JSON.stringify(this.settingsJson));
             writeJsonFile(this.settingsUri, this.settingsJson);
@@ -48,17 +47,26 @@ export class SettingsFile {
         }
     }
 
+    /* 如果在接口内部封装load+save 如果需要调用多次操作 则会重复IO读写 */
+
     // 添加项目信息
     async appendProjectInfo(projectInfo: ProjectInfo) {
-        await this.load();
         this.settingsJson[FIELD_NAME].push(projectInfo);
-        this.save();
     }
 
     async appendProjectInfoUri(projectInfoUri: Uri) {
-        await this.load();
+        let filePath = projectInfoUri.fsPath;
+        
+        // 防止重复出现
+        for(const item of this.settingsJson[FIELD_NAME]) {
+            // console.log("item:", item);
+
+            if(item === filePath) {
+                return;
+            }
+        }
+
         this.settingsJson[FIELD_NAME].push(projectInfoUri.fsPath);
-        this.save();
     }
 
     appendCrate(crate: Crate) {
