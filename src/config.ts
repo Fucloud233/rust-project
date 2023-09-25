@@ -2,9 +2,18 @@ import * as cp from 'child_process';
 import * as vscode from 'vscode';
 
 export const EXTENSION_NAME = "rust-project";
+
+// 配置信息字段名
 export const PROJECT_INFO = "projectInfo";
-export const SYSROOT = "sysroot";
-export const DEFAULT_EDITION = "defaultEdition";
+    export const SYSROOT = "sysroot";
+    export const DEFAULT_EDITION = "defaultEdition";
+    export const SAVE_METHOD = "saveMethod";
+
+
+export enum SaveMethod {
+    settings = 1,
+    rustProject
+}
 
 const execShell = (cmd: string) => 
     new Promise<string>((resolve, reject) => {
@@ -56,5 +65,16 @@ export function getProjectInfo(section: string = ""): any {
         return projectInfo;
     } else {
         return projectInfo.get(section);
+    }
+}
+
+// 获取配置信息
+export function getSaveMethod(): SaveMethod {
+    const saveMethod = getProjectInfo(SAVE_METHOD);
+
+    switch(saveMethod) {
+        case "settings": return SaveMethod.settings;
+        case "rust-project": return SaveMethod.rustProject;
+        default: return SaveMethod.settings;
     }
 }

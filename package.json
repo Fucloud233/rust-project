@@ -46,6 +46,16 @@
           "type": "string",
           "enum": ["2015", "2018", "2021"],
           "default": "2021"
+        },
+        "rust-project.projectInfo.saveMethod": {
+          "description": "The method to save the project info.",
+          "type": "string",
+          "enum": ["settings", "rust-project"],
+          "default": "settings",
+          "enumDescriptions": [
+            "Saved in .vscode/settings.json.",
+            "Saved in rust-project.json. If the file is outside the root, the path of json file will be also saved in settings.json."
+          ]
         }
       }
     }

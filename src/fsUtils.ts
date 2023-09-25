@@ -6,7 +6,7 @@ export async function checkFile(fileUri: vscode.Uri):
         
     return await vscode.workspace.fs.stat(fileUri).then(
         (fileStat) => {
-            console.log(fileStat); 
+            // console.log(fileStat); 
             return fileStat; 
         },
         () => { return undefined; }

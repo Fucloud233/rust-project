@@ -1,23 +1,25 @@
 import * as vscode from 'vscode';
+import {Uri} from 'vscode';
 import * as path from 'path';
+
 import { checkFile, writeJsonFile, readJsonFile } from './fsUtils';
-import { Crate, ProjectInfo } from './projectFile';
+import { Crate, ProjectInfo } from './projectInfo';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 const FIELD_NAME = "rust-analyzer.linkedProjects";
  
 
 export class SettingsFile {
-    settingsUri: vscode.Uri;
+    settingsUri: Uri;
     settingsJson: any;
 
-    constructor(rootUri: vscode.Uri) {
-        this.settingsUri = vscode.Uri.joinPath(rootUri, SETTINGS_FILE_NAME);
+    constructor(rootUri: Uri) {
+        this.settingsUri = Uri.joinPath(rootUri, SETTINGS_FILE_NAME);
         this.settingsJson = {};
     }
 
     // 读取文件
-    async load() {
+    private async load() {
         try {
             // 读取settings文件
             if(await checkFile(this.settingsUri)) {
@@ -30,16 +32,16 @@ export class SettingsFile {
                 this.settingsJson[FIELD_NAME] = [];
             }
 
-            console.log(this.settingsJson);
+            // console.log(this.settingsJson);
         } catch (error) {
             throw error;
         }
     }
 
     // 保存文件
-    async save() {
+    private async save() {
         try{
-            console.log(JSON.stringify(this.settingsJson));
+            // console.log(JSON.stringify(this.settingsJson));
             writeJsonFile(this.settingsUri, this.settingsJson);
         } catch(error) {
             throw error;
@@ -47,8 +49,16 @@ export class SettingsFile {
     }
 
     // 添加项目信息
-    appendProjectInfo(projectInfo: ProjectInfo) {
+    async appendProjectInfo(projectInfo: ProjectInfo) {
+        await this.load();
         this.settingsJson[FIELD_NAME].push(projectInfo);
+        this.save();
+    }
+
+    async appendProjectInfoUri(projectInfoUri: Uri) {
+        await this.load();
+        this.settingsJson[FIELD_NAME].push(projectInfoUri.fsPath);
+        this.save();
     }
 
     appendCrate(crate: Crate) {

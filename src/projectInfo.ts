@@ -6,6 +6,9 @@
 import * as vscode from 'vscode';
 import * as config from './config';
 
+// 项目配置文件名
+export const PROJECT_FILE_NAME = "rust-project.json";
+
 export class ProjectInfo {
     "sysroot": string;
     "crates": Crate[];
