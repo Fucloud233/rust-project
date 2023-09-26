@@ -1,16 +1,18 @@
 {
   "name": "rust-project",
   "displayName": "rust-project",
-  "description": "",
-  "version": "0.0.1",
+  "description": "Create rust project without Cargo.",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.82.0"
   },
   "categories": [
     "Other"
   ],
+  "repository": "https://github.com/Fucloud233/rust-project",
+  "publisher": "Fucloud",
   "activationEvents": [
-    "workspaceContains:**/Cargo.toml"
+    "workspaceContains:**/*.rs"
   ],
   "main": "./out/extension.js",
   "contributes": {
