@@ -6,4 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Initial release
+## [0.0.2] - 2023.09.26
+
+### Added
+
+- 优化插件启动的条件，只有当`Cargo.toml`不存在时，才能激活插件
+
+### Fixed
+
+- 修复当使用`settings`保存方法时，也会保存`rust-project`的Bug 
