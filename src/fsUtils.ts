@@ -1,4 +1,14 @@
 import * as vscode from 'vscode';
+import { Uri } from 'vscode'; 
+
+export async function getRootUri(): Promise<Uri | undefined> {
+	let entries = vscode.workspace.workspaceFolders;
+	if (entries !== undefined && entries.length > 0) {
+		return entries[0].uri;
+	} else {
+		return undefined;
+	}
+}
 
 // 验证文件是否存在
 export async function checkFile(fileUri: vscode.Uri): 
