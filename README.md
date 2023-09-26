@@ -12,4 +12,4 @@
 
 ## Requirements
 
-请先安装好`rust-analyzer`创建
+请先安装好`rust-analyzer`插件。
