@@ -56,6 +56,7 @@ export async function handle(rootUri: Uri, fileUri: Uri) {
             // 如果使用存储在settings中
             case config.SaveMethod.settings: {
                 createSettingsFile(rootUri, fileUri);
+                break;
             };
 
             // 如果使用存储在rust-project中
@@ -70,6 +71,8 @@ export async function handle(rootUri: Uri, fileUri: Uri) {
                     // (2) 不存在 -> 在当前文件中创建rust-project
                     createProjectFile(projectFileUri, rootUri, fileUri);
                 }
+
+                break;
             }
         };
     } catch (error) {
