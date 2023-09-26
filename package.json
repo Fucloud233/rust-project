@@ -2,15 +2,16 @@
   "name": "rust-project",
   "displayName": "rust-project",
   "description": "Create rust project without Cargo.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.82.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "repository": "https://github.com/Fucloud233/rust-project",
   "publisher": "Fucloud",
+  "icon": "images/icon.png",
   "activationEvents": [
     "workspaceContains:**/*.rs"
   ],

@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.3] - 2023.09.26
+
+### Added
+
+- 添加图标
+
 ## [0.0.2] - 2023.09.26
 
 ### Added
