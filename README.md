@@ -15,3 +15,13 @@
 
 ## Todo
 * 在settings.joson的配置方式中，以crates的粒度进行添加
+
+# QA
+
+## Q: rust-analyzer提示`xxx/lib/rustlib/src`路径不存在
+rust-analyzer 需要标准库的源码，如果你的系统中不存在，则需要执行以下命令手动按安装标准库源码：
+```bash
+$ rustup component add rust-src
+```
+
+> https://wiki.archlinuxcn.org/zh-tw/Rust
