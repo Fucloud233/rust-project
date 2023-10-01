@@ -48,7 +48,12 @@ async function modifyProjectFile(projectFileUri: Uri, fileUri: Uri) {
     projectFile.save();
 }
 
-export async function handle(rootUri: Uri, fileUri: Uri) {
+/**
+ * @deprecated 修改了新的运行逻辑
+ * @param rootUri 
+ * @param fileUri 
+ */
+export async function handle_old(rootUri: Uri, fileUri: Uri) {
     // 检测rust-project.json项目文件
     try {
         const saveMethod = config.getSaveMethod();
@@ -77,5 +82,43 @@ export async function handle(rootUri: Uri, fileUri: Uri) {
         };
     } catch (error) {
         vscode.window.showErrorMessage("项目文件检测失败!");
+    }
+}
+
+export async function handleCreate(rootUri: Uri, fileUri: Uri) {
+    const createMethod = config.getCreateMethod();
+    
+    switch(createMethod) {
+        // 自动存储在settings中
+        case config.CreateMethod.auto: {
+            let settingsFile = new SettingsFile(rootUri);
+            await settingsFile.load();
+            settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
+            settingsFile.save();
+            break;
+        };
+        // 启用手动存储模式
+        case config.CreateMethod.manual: {
+
+        }
+    }
+}
+
+export async function handleDelete(rootUri: Uri, fileUri: Uri) {
+    const createMethod = config.getCreateMethod();
+    
+    switch(createMethod) {
+        // 自动存储在settings中
+        case config.CreateMethod.auto: {
+            let settingsFile = new SettingsFile(rootUri);
+            await settingsFile.load();
+            settingsFile.removeCrateFromProjectInfo(fileUri);
+            settingsFile.save();
+            break;
+        };
+        // 启用手动存储模式
+        case config.CreateMethod.manual: {
+
+        }
     }
 }

@@ -50,14 +50,14 @@
           "enum": ["2015", "2018", "2021"],
           "default": "2021"
         },
-        "rust-project.projectInfo.saveMethod": {
-          "description": "The method to save the project info.",
+        "rust-project.projectInfo.createMethod": {
+          "description": "The method to Create your project.",
           "type": "string",
-          "enum": ["settings", "rust-project"],
-          "default": "settings",
+          "enum": ["auto", "manual"],
+          "default": "auto",
           "enumDescriptions": [
-            "Saved in .vscode/settings.json.",
-            "Saved in rust-project.json. If the file is outside the root, the path of json file will be also saved in settings.json."
+            "All rust source files will be considered executable, and recorded in settings.json file.",
+            "You should create a project maually, but a workspace can only have one project."
           ]
         }
       }

@@ -1,4 +1,5 @@
 import * as cp from 'child_process';
+import { create } from 'domain';
 import * as vscode from 'vscode';
 
 export const EXTENSION_NAME = "rust-project";
@@ -7,12 +8,24 @@ export const EXTENSION_NAME = "rust-project";
 export const PROJECT_INFO = "projectInfo";
     export const SYSROOT = "sysroot";
     export const DEFAULT_EDITION = "defaultEdition";
+    /**
+     * @deprecated 已经迁移为Create Method
+     */
     export const SAVE_METHOD = "saveMethod";
+    // 创建Project的方式
+    export const CREATE_METHOD = "createMethod";
 
-
+/**
+ * @deprecated 已经迁移为Create Method
+ */
 export enum SaveMethod {
     settings = 1,
     rustProject
+}
+
+export enum CreateMethod {
+    auto = 1, 
+    manual
 }
 
 const execShell = (cmd: string) => 
@@ -41,8 +54,9 @@ function initSysroot() {
                 // 更新项目信息
                 projectInfo.update(SYSROOT, o.trim(), true);
             })
-            .catch(()=>{
+            .catch((err)=>{
                 // TODO: 需要对异常进行处理
+                vscode.window.showErrorMessage(err);
                 return "";
             });
     }
@@ -68,6 +82,9 @@ export function getProjectInfo(section: string = ""): any {
     }
 }
 
+/**
+ * @deprecated 已经迁移为Create Method
+ */
 // 获取配置信息
 export function getSaveMethod(): SaveMethod {
     const saveMethod = getProjectInfo(SAVE_METHOD);
@@ -76,5 +93,15 @@ export function getSaveMethod(): SaveMethod {
         case "settings": return SaveMethod.settings;
         case "rust-project": return SaveMethod.rustProject;
         default: return SaveMethod.settings;
+    }
+}
+
+export function getCreateMethod(): CreateMethod {
+    const createMethod = getProjectInfo(CREATE_METHOD);
+
+    switch(createMethod) {
+        case "auto": return CreateMethod.auto;
+        case "manual": return CreateMethod.manual;
+        default: return CreateMethod.auto; 
     }
 }

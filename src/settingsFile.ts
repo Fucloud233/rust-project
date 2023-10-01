@@ -1,4 +1,4 @@
-import {Uri} from 'vscode';
+import { Uri } from 'vscode';
 import * as path from 'path';
 
 import { checkFile, writeJsonFile, readJsonFile } from './fsUtils';
@@ -6,6 +6,7 @@ import { Crate, ProjectInfo } from './projectInfo';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 const FIELD_NAME = "rust-analyzer.linkedProjects";
+const CRATES = "crates"
  
 
 export class SettingsFile {
@@ -69,7 +70,55 @@ export class SettingsFile {
         this.settingsJson[FIELD_NAME].push(projectInfoUri.fsPath);
     }
 
+    /**
+     * 向ProjectInfo中添加Crate 
+     * @param crate 
+     */
+    async appendCrateToProjectInfo(crate: Crate) {
+        try {
+            let projects = this.settingsJson[FIELD_NAME];
+
+            const index = this.getFirstProjectInfoIndex();
+            if(index == -1) {
+                projects.push(new ProjectInfo([crate]));
+            } else {
+                // 存在项目则插入
+                projects[index][CRATES].push(crate);
+            }
+        } catch (err) {
+            console.log("appendCreateToProjectInfo:\n", err);
+        } 
+    }
+
+    async removeCrateFromProjectInfo(fileUri: Uri) {
+        let projects: [] = this.settingsJson[FIELD_NAME];
+        const index = this.getFirstProjectInfoIndex();
+        
+        if(index==-1) {
+            return;
+        }        
+
+        let crates: [] = projects[index][CRATES];
+        const indexToDelet = crates.findIndex((crate) => {
+            crate["root_module"] == fileUri.fsPath
+        })
+        crates.splice(indexToDelet, 1);
+    }
+
     appendCrate(crate: Crate) {
         
+    }
+
+    // 获得第一个项目的索引
+    private getFirstProjectInfoIndex(): number {
+        let projects = this.settingsJson[FIELD_NAME];
+        
+        for(let i=0; i<projects.length; i++) {
+            if(typeof projects[i] !== 'string') {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

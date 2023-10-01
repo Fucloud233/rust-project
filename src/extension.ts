@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Uri } from 'vscode'; 
 
-import {handle} from './handler';
+import { handleCreate, handleDelete } from './handler';
 import {initConfig} from './config';
 import { checkFile, getRootUri } from './fsUtils';
 
@@ -48,8 +48,11 @@ function reactivate() {
     // 当创建文件的时候激活
 	rsWatcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
     rsWatcher.onDidCreate(async (fileUri: Uri) => {
-		handle(rootUri, fileUri);
+		handleCreate(rootUri, fileUri);
  	});
+	rsWatcher.onDidDelete(async (fileUri: Uri) => {
+		handleDelete(rootUri, fileUri);
+	} )
 }
 
 // This method is called when your extension is deactivated

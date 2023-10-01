@@ -1,7 +1,12 @@
 import * as vscode from 'vscode';
 import { Uri } from 'vscode'; 
 
+/**
+ * 
+ * @returns 返回当前工作区的第一个工作路径
+ */
 export async function getRootUri(): Promise<Uri | undefined> {
+    // [注意]这里返回数组只是因为vscode可能会打开多个数组
 	let entries = vscode.workspace.workspaceFolders;
 	if (entries !== undefined && entries.length > 0) {
 		return entries[0].uri;
