@@ -1,5 +1,4 @@
 import * as cp from 'child_process';
-import { create } from 'domain';
 import * as vscode from 'vscode';
 
 export const EXTENSION_NAME = "rust-project";

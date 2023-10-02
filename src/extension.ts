@@ -52,7 +52,7 @@ function reactivate() {
  	});
 	rsWatcher.onDidDelete(async (fileUri: Uri) => {
 		handleDelete(rootUri, fileUri);
-	} )
+	});
 }
 
 // This method is called when your extension is deactivated
