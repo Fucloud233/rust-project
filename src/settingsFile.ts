@@ -3,10 +3,10 @@ import * as path from 'path';
 
 import { checkFile, writeJsonFile, readJsonFile } from './fsUtils';
 import { Crate, ProjectInfo } from './projectInfo';
+import { ExistError } from './error';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 const FIELD_NAME = "rust-analyzer.linkedProjects";
-const CRATES = "crates"
  
 
 export class SettingsFile {
@@ -74,39 +74,46 @@ export class SettingsFile {
      * 向ProjectInfo中添加Crate 
      * @param crate 
      */
-    async appendCrateToProjectInfo(crate: Crate) {
-        try {
-            let projects = this.settingsJson[FIELD_NAME];
+    // [注意] 这里不是异步函数 (async)
+    appendCrateToProjectInfo(crate: Crate) {
+        const project = this.getFirstProjectInfo();
+        // 如果不存在ProjectInfo则直接添加
+        if(project === undefined) {
+            this.settingsJson[FIELD_NAME]
+                .push(new ProjectInfo([crate]));
+            return;
+        }
 
-            const index = this.getFirstProjectInfoIndex();
-            if(index == -1) {
-                projects.push(new ProjectInfo([crate]));
-            } else {
-                // 存在项目则插入
-                projects[index][CRATES].push(crate);
-            }
-        } catch (err) {
-            console.log("appendCreateToProjectInfo:\n", err);
-        } 
+        let index = project.findCrate(crate);
+        if(index === -1) {
+            project.pushCrate(crate);
+        } else {
+            project.setCrate(crate, index);
+            throw new ExistError('The Crate');
+        }
     }
 
-    async removeCrateFromProjectInfo(fileUri: Uri) {
-        let projects: [] = this.settingsJson[FIELD_NAME];
-        const index = this.getFirstProjectInfoIndex();
-        
-        if(index==-1) {
+    removeCrateFromProjectInfo(fileUri: Uri) {
+        const project = this.getFirstProjectInfo();
+        if(project === undefined)  {
             return;
         }        
 
-        let crates: [] = projects[index][CRATES];
-        const indexToDelet = crates.findIndex((crate) => {
-            crate["root_module"] == fileUri.fsPath
-        })
-        crates.splice(indexToDelet, 1);
+        const crateIndex = project.findCrateWithUri(fileUri);
+        if(crateIndex === -1) {
+            return;
+        }
+
+        project.removeCrate(crateIndex);
     }
 
-    appendCrate(crate: Crate) {
-        
+    private getFirstProjectInfo(): ProjectInfo | undefined {
+        let projects = this.settingsJson[FIELD_NAME];
+        for(let project of projects) {
+            return Object.assign(new ProjectInfo(), project);
+        }
+
+        return undefined;
     }
 
     // 获得第一个项目的索引

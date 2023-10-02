@@ -1,11 +1,10 @@
-import * as vscode from 'vscode';
-import {Uri} from 'vscode';
+import { Uri, window } from 'vscode';
 
 import * as config from './config';
 import { ProjectInfo, Crate} from './projectInfo';
 import { SettingsFile } from './settingsFile';
 import { ProjectFile, getProjectFileUri } from './projectFile';
-
+import { ExistError } from './error';
 
 async function createSettingsFile(rootUri:  Uri, fileUri: Uri) {
     const crate = new Crate(fileUri);
@@ -53,7 +52,7 @@ async function modifyProjectFile(projectFileUri: Uri, fileUri: Uri) {
  * @param rootUri 
  * @param fileUri 
  */
-export async function handle_old(rootUri: Uri, fileUri: Uri) {
+export async function handleOld(rootUri: Uri, fileUri: Uri) {
     // 检测rust-project.json项目文件
     try {
         const saveMethod = config.getSaveMethod();
@@ -81,7 +80,25 @@ export async function handle_old(rootUri: Uri, fileUri: Uri) {
             }
         };
     } catch (error) {
-        vscode.window.showErrorMessage("项目文件检测失败!");
+        window.showErrorMessage("项目文件检测失败!");
+    }
+}
+
+// 向settingsFile中添加Crate
+async function appendCrateToSettingsFile(rootUri:  Uri, fileUri: Uri) {
+    let settingsFile = new SettingsFile(rootUri);
+    try {
+        await settingsFile.load();
+        settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
+    } catch(err) {
+        if(err instanceof ExistError) {
+            window.showWarningMessage(err.message + " And it will be covered.");
+        } else {
+            window.showErrorMessage("Not known error!");
+        }
+    } finally {
+        // 最后要保存
+        settingsFile.save();
     }
 }
 
@@ -91,10 +108,7 @@ export async function handleCreate(rootUri: Uri, fileUri: Uri) {
     switch(createMethod) {
         // 自动存储在settings中
         case config.CreateMethod.auto: {
-            let settingsFile = new SettingsFile(rootUri);
-            await settingsFile.load();
-            settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
-            settingsFile.save();
+            appendCrateToSettingsFile(rootUri, fileUri);
             break;
         };
         // 启用手动存储模式
