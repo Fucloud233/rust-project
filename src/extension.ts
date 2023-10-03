@@ -1,9 +1,12 @@
+// [注意] 此依赖用于class-transformer 不能删除
+import 'reflect-metadata';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode'; 
 
 import { handleCreate, handleDelete } from './handler';
 import {initConfig} from './config';
 import { checkFile, getRootUri } from './fsUtils';
+import { addCrateToCmd } from './command';
 
 const CARGO_TOML = "Cargo.toml";
 
@@ -27,12 +30,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	const tomlWatcher = vscode.workspace.createFileSystemWatcher(cargoTomlUri.fsPath);
 	// Cargo.toml删除 插件重新激活
 	tomlWatcher.onDidDelete(async (_) => {
-		reactivate();
+		reactivate(context);
 		console.log("Cargo.toml删除，重新激活!");
 	});
 	// Cargo.toml创建 插件不激活
 	tomlWatcher.onDidCreate(async (_) => {
-		deactivate();
+		deactivate(context);
 		console.log("Cargo.toml创建，不激活!");
 	});
 	// 根目录中存在Cargo.Toml 不激活函数
@@ -41,10 +44,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 	
-	reactivate();
+	reactivate(context);
 }
 
-function reactivate() {
+function reactivate(context: vscode.ExtensionContext) {
     // 当创建文件的时候激活
 	rsWatcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
     rsWatcher.onDidCreate(async (fileUri: Uri) => {
@@ -53,9 +56,13 @@ function reactivate() {
 	rsWatcher.onDidDelete(async (fileUri: Uri) => {
 		handleDelete(rootUri, fileUri);
 	});
+
+	context.subscriptions.push(addCrateToCmd);
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {
+export function deactivate(context: vscode.ExtensionContext) {
 	rsWatcher.dispose();
+
+	context.subscriptions.splice(0, context.subscriptions.length);
 }
