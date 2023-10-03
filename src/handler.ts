@@ -1,11 +1,14 @@
 import { Uri, window } from 'vscode';
 
 import * as config from './config';
-import { ProjectInfo, Crate} from './projectInfo';
-import { SettingsFile } from './settingsFile';
-import { ProjectFile, getProjectFileUri } from './projectFile';
+import { ProjectInfo, Crate} from './info/projectInfo';
+import { SettingsFile } from './info/settingsFile';
+import { ProjectFile, getProjectFileUri } from './info/projectFile';
 import { ExistError } from './error';
 
+/**
+ * @deprecated 修改了新的运行逻辑
+ */
 async function createSettingsFile(rootUri:  Uri, fileUri: Uri) {
     const crate = new Crate(fileUri);
     const projectInfo = new ProjectInfo([crate]);
@@ -19,6 +22,9 @@ async function createSettingsFile(rootUri:  Uri, fileUri: Uri) {
     }
 }
 
+/**
+ * @deprecated 修改了新的运行逻辑
+ */
 // 使用rust-project配置
 async function createProjectFile(projectFileUri: Uri, rootUri: Uri, fileUri: Uri) {
     // 1. 在rust-project中配置
@@ -31,11 +37,14 @@ async function createProjectFile(projectFileUri: Uri, rootUri: Uri, fileUri: Uri
     if(!isRoot) {
         let settingsFile = new SettingsFile(rootUri);
         await settingsFile.load();
-        settingsFile.appendProjectInfoUri(projectFileUri);
+        settingsFile.appendProjectInfo(projectFileUri);
         settingsFile.save();
     }
 } 
 
+/**
+ * @deprecated 修改了新的运行逻辑
+ */
 // 修改rust-project配置文件
 async function modifyProjectFile(projectFileUri: Uri, fileUri: Uri) {
     let projectFile = new ProjectFile(projectFileUri);
@@ -120,7 +129,7 @@ export async function handleCreate(rootUri: Uri, fileUri: Uri) {
 
 export async function handleDelete(rootUri: Uri, fileUri: Uri) {
     const createMethod = config.getCreateMethod();
-    
+
     switch(createMethod) {
         // 自动存储在settings中
         case config.CreateMethod.auto: {
