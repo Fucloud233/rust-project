@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Uri } from 'vscode';
-import { checkFile, writeJsonFile, readJsonFile } from './fsUtils';
+import { checkFile, writeJsonFile, readJsonFile } from '../fsUtils';
 import { Crate, ProjectInfo } from './projectInfo';
 
 // 项目配置文件名

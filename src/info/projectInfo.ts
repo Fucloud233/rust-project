@@ -4,18 +4,20 @@
 // https://github.com/Fucloud233/ra-exmaple/blob/method-3/.vscode/settings.json
 
 import { Uri }  from 'vscode';
-import * as config from './config';
+import * as config from '../config';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 // 项目配置文件名
 export const PROJECT_FILE_NAME = "rust-project.json";
 
 export class ProjectInfo {
     private "sysroot": string;
-    private "crates": Crate[];
+    @Exclude()
+    private _crates: Crate[];
 
     constructor(crates: Crate[] = []) {
         this.sysroot = config.getProjectInfo(config.SYSROOT);
-        this.crates = crates;
+        this._crates = crates;
     }
 
     setCrate(crate: Crate, index: number) {
@@ -43,50 +45,72 @@ export class ProjectInfo {
         return false;
     }
 
+    // [注意] 如果使用Exclude 有getter必须要用setter
+    @Type(()=>Crate)
+    @Expose({name: "crates"})
+    get crates(): Crate[] {
+        return this._crates;
+    }
+    set crates(crates: Crate[]) {
+        this._crates = crates;
+    }
+
     findCrate(crate: Crate, isStrict: boolean=false): number {
-        for(let i=0; i<this.crates.length; i++) {
-            let curCrate = Object.assign(new Crate(), this.crates[i]);
-            if(curCrate.isEqual(crate, isStrict)) {
-                return i;
-            }
+        if(this.crates === undefined) {
+            return -1;
         }
-        return -1;
+
+        return this.crates.findIndex((elem)=>{
+            return elem.isEqual(crate, isStrict);
+        });
     }
 
     findCrateWithUri(fileUri: Uri): number {
-        for(let i=0; i<this.crates.length; i++) {
-            let curCrate = Object.assign(new Crate(), this.crates[i]);
-            if(curCrate.isEqualWithUri(fileUri)) {
-                return i;
-            }
+        if(this.crates === undefined) {
+            return -1;
         }
-        return -1;
+
+        return this.crates.findIndex((elem)=>{
+            return elem.isEqualWithUri(fileUri);
+        });
     }
 }
 
 export class Crate {
     // TODO: 考虑使用相对路径
-    "root_module": string;
+    @Exclude()
+    private _root_module: Uri;
     // [注意] 此处是string类型
-    "edition": "2015" | "2018" | "2021";
-    "deps": string[];
+    private "edition": "2015" | "2018" | "2021";
+    private "deps": string[];
 
     constructor(fileName: Uri=Uri.parse("")) {
-        this.root_module = fileName.fsPath;
+        this._root_module = fileName;
         this.edition = config.getProjectInfo(config.DEFAULT_EDITION);
         this.deps = [];
     }
 
     isEqualWithUri(fileUri: Uri): boolean {
-        return this.root_module === fileUri.fsPath;
+        // [注意] 不能直接比较Uri对象 需要比较fsPath对象
+        return this._root_module.fsPath === fileUri.fsPath;
     }
 
     isEqual(other: Crate, isStrict: boolean=false): boolean {
         if(isStrict) {
-            return this.root_module === other.root_module &&
+            return this._root_module.fsPath === other._root_module.fsPath &&
                 this.edition === other.edition;
         } else {
-            return this.root_module === other.root_module;
+            return this._root_module.fsPath === other._root_module.fsPath;
         }
+    }
+
+    // 通过getter/setter重新定义字段root_module
+    @Expose({name: "root_module"})
+    get rootModule():string {
+        return this._root_module.fsPath;
+    }
+
+    set rootModule(uriStr: string) {
+        this._root_module = Uri.parse(uriStr);
     }
 }
