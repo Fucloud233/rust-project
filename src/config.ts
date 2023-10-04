@@ -26,7 +26,7 @@ export enum PathType {
 
 class ProjectConfigInfo {
     sysroot: string = "";
-    defaultEdition: string = "";
+    defaultEdition: "2015" | "2018" | "2021" = "2015";
     @Exclude()
     private _createMethod: CreateMethod = CreateMethod.auto;
     @Exclude()
