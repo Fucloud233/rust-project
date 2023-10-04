@@ -94,8 +94,9 @@ export async function handleOld(rootUri: Uri, fileUri: Uri) {
 }
 
 // 向settingsFile中添加Crate
-async function appendCrateToSettingsFile(rootUri:  Uri, fileUri: Uri) {
-    let settingsFile = new SettingsFile(rootUri);
+// [注意] 添加Crate不会影响crates的顺序
+async function appendCrateToSettingsFile(fileUri: Uri) {
+    let settingsFile = new SettingsFile();
     try {
         await settingsFile.load();
         settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
@@ -107,17 +108,17 @@ async function appendCrateToSettingsFile(rootUri:  Uri, fileUri: Uri) {
         }
     } finally {
         // 最后要保存
-        settingsFile.save();
+        await settingsFile.save();
     }
 }
 
-export async function handleCreate(rootUri: Uri, fileUri: Uri) {
+export async function handleCreate(fileUri: Uri) {
     const createMethod = config.getCreateMethod();
     
     switch(createMethod) {
         // 自动存储在settings中
         case config.CreateMethod.auto: {
-            appendCrateToSettingsFile(rootUri, fileUri);
+            appendCrateToSettingsFile(fileUri);
             break;
         };
         // 启用手动存储模式
@@ -127,16 +128,16 @@ export async function handleCreate(rootUri: Uri, fileUri: Uri) {
     }
 }
 
-export async function handleDelete(rootUri: Uri, fileUri: Uri) {
+export async function handleDelete(fileUri: Uri) {
     const createMethod = config.getCreateMethod();
 
     switch(createMethod) {
         // 自动存储在settings中
         case config.CreateMethod.auto: {
-            let settingsFile = new SettingsFile(rootUri);
+            let settingsFile = new SettingsFile();
             await settingsFile.load();
             settingsFile.removeCrateFromProjectInfo(fileUri);
-            settingsFile.save();
+            await settingsFile.save();
             break;
         };
         // 启用手动存储模式

@@ -11,19 +11,16 @@ import { addCrateToCmd } from './command';
 const CARGO_TOML = "Cargo.toml";
 
 let rsWatcher: vscode.FileSystemWatcher;
-let rootUri: Uri;
 
 export async function activate(context: vscode.ExtensionContext) {
 	// 初始化配置信息
 	initConfig();
 
 	// 初始化 rootUri
-	let tmpRootUri = await getRootUri();
-	if(tmpRootUri === undefined) {
+	let rootUri = getRootUri();
+	if(rootUri === undefined) {
 		console.log("查找工作路径失败!");
 		return;
-	} else {
-		rootUri = tmpRootUri;
 	}
 
 	let cargoTomlUri = vscode.Uri.joinPath(rootUri, CARGO_TOML);
@@ -51,10 +48,10 @@ function reactivate(context: vscode.ExtensionContext) {
     // 当创建文件的时候激活
 	rsWatcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
     rsWatcher.onDidCreate(async (fileUri: Uri) => {
-		handleCreate(rootUri, fileUri);
+		handleCreate(fileUri);
  	});
 	rsWatcher.onDidDelete(async (fileUri: Uri) => {
-		handleDelete(rootUri, fileUri);
+		handleDelete(fileUri);
 	});
 
 	context.subscriptions.push(addCrateToCmd);

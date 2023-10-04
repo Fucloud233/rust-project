@@ -3,19 +3,25 @@ import * as path from 'path';
 import { instanceToPlain, plainToClass } from 'class-transformer';
 
 import { SettingsInfo } from './settingsInfo';
-import { checkFile, writeJsonFile, readJsonFile } from '../utils/fs';
+import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
 import { Crate, ProjectInfo } from './projectInfo';
-import { ExistError } from '../error';
+import { ExistError, NotFoundError } from '../error';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 
 export class SettingsFile {
     fileUri: Uri;
     fileInfo: SettingsInfo;
+    rootUri: Uri;
 
-    constructor(rootUri: Uri) {
+    constructor(rootUri: Uri | undefined = getRootUri()) {
+        if(rootUri===undefined) {
+            throw new NotFoundError("The RootUri");
+        } 
+
         this.fileUri = Uri.joinPath(rootUri, SETTINGS_FILE_NAME);
         this.fileInfo = new SettingsInfo();
+        this.rootUri = rootUri;
     }
 
     // 读取文件
@@ -85,9 +91,9 @@ export class SettingsFile {
         project.removeCrate(crateIndex);
     }
 
-    getCratesRelativeUri(rootUri: Uri): string[] {
+    getCratesRelativeUri(): string[] {
         const project = this.fileInfo.firstProject;
-        if(project === undefined || rootUri === undefined) {
+        if(project === undefined) {
             throw new Error();
         }
 
@@ -95,7 +101,7 @@ export class SettingsFile {
         let relativeUriList = [];
         for(let crate of cratesList) {
             relativeUriList.push(
-                path.relative(rootUri.fsPath, crate.rootModule)
+                path.relative(this.rootUri.fsPath, crate.rootModule)
             );
         }
 
