@@ -4,10 +4,12 @@
 // https://github.com/Fucloud233/ra-exmaple/blob/method-3/.vscode/settings.json
 
 import { Uri }  from 'vscode';
+import * as path from 'path';
 
-import * as config from '../config';
+import { projectConfig, PathType } from '../config';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { getAbsoluteUri, getRelativeUri } from '../utils/fs';
+import { relativeUriToCrateName } from '../utils/info';
 
 // 项目配置文件名
 export const PROJECT_FILE_NAME = "rust-project.json";
@@ -18,7 +20,7 @@ export class ProjectInfo {
     private _crates: Crate[];
 
     constructor(crates: Crate[] = []) {
-        this.sysroot = config.getProjectInfo(config.SYSROOT);
+        this.sysroot = projectConfig.sysroot;
         this._crates = crates;
     }
 
@@ -101,8 +103,8 @@ export class Crate {
         this._relative_root_module = getRelativeUri(fileName);
         this._root_module = fileName;
 
-        this.display_name = "";
-        this.edition = config.getProjectInfo(config.DEFAULT_EDITION);
+        this.display_name = relativeUriToCrateName(this._relative_root_module);
+        this.edition = projectConfig.defaultEdition;
         this.deps = [];
     }
 
@@ -123,11 +125,19 @@ export class Crate {
     // 通过getter/setter重新定义字段root_module
     @Expose({name: "root_module"})
     get rootModule(): string {
-        return this._relative_root_module;
+        switch(projectConfig.pathType) {
+            case PathType.relative: return this._relative_root_module;
+            case PathType.absolute: return this._root_module.fsPath;
+        }
     }
 
     set rootModule(uriStr: string) {
-        this._root_module = getAbsoluteUri(uriStr);
-        this._relative_root_module = uriStr;
+        if(path.isAbsolute(uriStr)) {
+            this._root_module = Uri.parse(uriStr);
+            this._relative_root_module = getRelativeUri(this._root_module);
+        } else {
+            this._root_module = getAbsoluteUri(uriStr);
+            this._relative_root_module = uriStr;
+        }
     }
 }
