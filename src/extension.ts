@@ -42,6 +42,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 	
 	reactivate(context);
+
+	console.log("rust-project extension is activated sucessfully!");
 }
 
 function reactivate(context: vscode.ExtensionContext) {
