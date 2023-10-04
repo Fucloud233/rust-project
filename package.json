@@ -20,7 +20,9 @@
     "commands": [
       {
         "command": "rust-project.auto.addCrateTo",
-        "title": "Add Crate to"
+        "title": "Add Crate to ...",
+        "category": "rust-project",
+        "enablement": "resourceExtname==.rs"
       },
       {
         "command": "rust-project.helloWorld",
