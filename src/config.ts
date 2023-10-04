@@ -44,7 +44,7 @@ class ProjectConfigInfo {
         this._createMethod = CreateMethod[methodkey];
     }
 
-    @Expose({name: "PathType"})
+    @Expose({name: "pathType"})
     @IsEnum(PathType)
     get pathType(): PathType {
         return this._pathType;
