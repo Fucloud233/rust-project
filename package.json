@@ -72,6 +72,15 @@
             "All rust source files will be considered executable, and recorded in settings.json file.",
             "You should create a project maually, but a workspace can only have one project."
           ]
+        },
+        "rust-project.projectInfo.pathType": {
+          "description": "Remember to only use the same path type.",
+          "type": "string",
+          "enum": [
+            "relative",
+            "absolute"
+          ],
+          "default": "relative"
         }
       }
     }
@@ -98,6 +107,7 @@
   },
   "dependencies": {
     "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "reflect-metadata": "^0.1.13"
   }
 }

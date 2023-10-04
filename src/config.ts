@@ -1,18 +1,12 @@
 import * as cp from 'child_process';
+
+import { Exclude, Expose, plainToClass } from 'class-transformer';
+import { IsEnum } from 'class-validator';
 import * as vscode from 'vscode';
 
 export const EXTENSION_NAME = "rust-project";
-
 // 配置信息字段名
-export const PROJECT_INFO = "projectInfo";
-    export const SYSROOT = "sysroot";
-    export const DEFAULT_EDITION = "defaultEdition";
-    /**
-     * @deprecated 已经迁移为Create Method
-     */
-    export const SAVE_METHOD = "saveMethod";
-    // 创建Project的方式
-    export const CREATE_METHOD = "createMethod";
+const PROJECT_INFO = "projectInfo";
 
 /**
  * @deprecated 已经迁移为Create Method
@@ -23,8 +17,67 @@ export enum SaveMethod {
 }
 
 export enum CreateMethod {
-    auto = 1, 
-    manual
+    auto, manual
+}
+
+export enum PathType {
+    relative, absolute
+}
+
+class ProjectConfigInfo {
+    sysroot: string = "";
+    defaultEdition: string = "";
+    @Exclude()
+    private _createMethod: CreateMethod = CreateMethod.auto;
+    @Exclude()
+    private _pathType: PathType = PathType.relative;    
+    @Exclude()
+    private _saveMethod: SaveMethod = SaveMethod.rustProject;
+
+    @Expose({name: "createMethod"})
+    @IsEnum(CreateMethod)
+    get createMethod(): CreateMethod {
+        return this._createMethod;
+    }
+    set createMethod(methodStr: string) {
+        let methodkey = methodStr as keyof typeof CreateMethod;
+        this._createMethod = CreateMethod[methodkey];
+    }
+
+    @Expose({name: "PathType"})
+    @IsEnum(PathType)
+    get pathType(): PathType {
+        return this._pathType;
+    }
+    set pathType(typeStr: string) {
+        let typeKey = typeStr as keyof typeof PathType;
+        this._pathType = PathType[typeKey];
+    }
+
+    @Expose({name: "saveMethod"})
+    @IsEnum(SaveMethod)
+    get saveMethod(): SaveMethod {
+        return this._saveMethod;
+    }
+    set saveMethod(methodStr: string) {
+        let methodkey = methodStr as keyof typeof SaveMethod;
+        this._saveMethod = SaveMethod[methodkey];
+    }
+}
+
+// [注意] 这一段代码只能放在这里 否则会出现引用错误
+export const projectConfig = initProjectConfigInfo();
+
+function initProjectConfigInfo(): ProjectConfigInfo {
+    let result: ProjectConfigInfo;
+    try {
+        let configInfo = getConfig(PROJECT_INFO);
+        result = plainToClass(ProjectConfigInfo, configInfo);
+    } catch (err) {
+        console.log(err);
+        throw new Error();
+    }
+    return result;
 }
 
 const execShell = (cmd: string) => 
@@ -70,6 +123,17 @@ export function getConfig(section: string): any {
     section = EXTENSION_NAME + "." + section;
     return vscode.workspace.getConfiguration(section);
 }
+
+/* ------------------------------ 废弃代码 ------------------------------ */
+
+export const SYSROOT = "sysroot";
+export const DEFAULT_EDITION = "defaultEdition";
+/**
+ * @deprecated 已经迁移为Create Method
+ */
+export const SAVE_METHOD = "saveMethod";
+// 创建Project的方式
+export const CREATE_METHOD = "createMethod";
 
 // 获取ProjectInfo 信息
 export function getProjectInfo(section: string = ""): any {

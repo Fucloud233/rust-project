@@ -1,6 +1,6 @@
 import { Uri, window } from 'vscode';
 
-import * as config from './config';
+import { projectConfig, SaveMethod, CreateMethod } from './config';
 import { ProjectInfo, Crate} from './info/projectInfo';
 import { SettingsFile } from './info/settingsFile';
 import { ProjectFile, getProjectFileUri } from './info/projectFile';
@@ -64,16 +64,16 @@ async function modifyProjectFile(projectFileUri: Uri, fileUri: Uri) {
 export async function handleOld(rootUri: Uri, fileUri: Uri) {
     // 检测rust-project.json项目文件
     try {
-        const saveMethod = config.getSaveMethod();
+        const saveMethod = projectConfig.saveMethod;
         switch(saveMethod) {
             // 如果使用存储在settings中
-            case config.SaveMethod.settings: {
+            case SaveMethod.settings: {
                 createSettingsFile(rootUri, fileUri);
                 break;
             };
 
             // 如果使用存储在rust-project中
-            case config.SaveMethod.rustProject: {
+            case SaveMethod.rustProject: {
                 // 1. 查找projectfile文件
                 let [projectFileUri, isExist] = await getProjectFileUri(rootUri, fileUri);
 
@@ -100,6 +100,7 @@ async function appendCrateToSettingsFile(fileUri: Uri) {
     try {
         await settingsFile.load();
         settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
+        // console.log("SettingsFile: ", settingsFile.fileInfo.firstProject);
     } catch(err) {
         if(err instanceof ExistError) {
             window.showWarningMessage(err.message + " And it will be covered.");
@@ -113,27 +114,23 @@ async function appendCrateToSettingsFile(fileUri: Uri) {
 }
 
 export async function handleCreate(fileUri: Uri) {
-    const createMethod = config.getCreateMethod();
-    
-    switch(createMethod) {
+    switch(projectConfig.createMethod) {
         // 自动存储在settings中
-        case config.CreateMethod.auto: {
+        case CreateMethod.auto: {
             appendCrateToSettingsFile(fileUri);
             break;
         };
         // 启用手动存储模式
-        case config.CreateMethod.manual: {
+        case CreateMethod.manual: {
 
         }
     }
 }
 
 export async function handleDelete(fileUri: Uri) {
-    const createMethod = config.getCreateMethod();
-
-    switch(createMethod) {
+    switch(projectConfig.createMethod) {
         // 自动存储在settings中
-        case config.CreateMethod.auto: {
+        case CreateMethod.auto: {
             let settingsFile = new SettingsFile();
             await settingsFile.load();
             settingsFile.removeCrateFromProjectInfo(fileUri);
@@ -141,7 +138,7 @@ export async function handleDelete(fileUri: Uri) {
             break;
         };
         // 启用手动存储模式
-        case config.CreateMethod.manual: {
+        case CreateMethod.manual: {
 
         }
     }
