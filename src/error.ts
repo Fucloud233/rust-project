@@ -1,4 +1,4 @@
-class BaseError extends Error {
+export class BaseError extends Error {
     message: string;
 
     constructor(message: string) {
@@ -14,7 +14,13 @@ export class ExistError extends BaseError {
 }
 
 export class NotFoundError extends BaseError {
-    constructor(fileNmae: string) {
-        super(fileNmae + ' not found.');
+    constructor(fileName: string) {
+        super(fileName + ' not found.');
+    }
+}
+
+export class FileParseError extends BaseError {
+    constructor(fileName: string) {
+        super(fileName + ' parsing falied. ');
     }
 }

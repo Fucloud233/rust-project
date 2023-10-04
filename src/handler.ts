@@ -4,7 +4,7 @@ import { projectConfig, SaveMethod, CreateMethod } from './config';
 import { ProjectInfo, Crate} from './info/projectInfo';
 import { SettingsFile } from './info/settingsFile';
 import { ProjectFile, getProjectFileUri } from './info/projectFile';
-import { ExistError } from './error';
+import { BaseError, ExistError } from './error';
 
 /**
  * @deprecated 修改了新的运行逻辑
@@ -101,15 +101,18 @@ async function appendCrateToSettingsFile(fileUri: Uri) {
         await settingsFile.load();
         settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
         // console.log("SettingsFile: ", settingsFile.fileInfo.firstProject);
+        // [注意] 保存不能写在finally 当出现错误时 可能会空白覆盖
+        await settingsFile.save();
     } catch(err) {
         if(err instanceof ExistError) {
             window.showWarningMessage(err.message + " And it will be covered.");
+            await settingsFile.save();
+        } else if(err instanceof BaseError) {
+            window.showErrorMessage(err.message);
         } else {
+            console.log("Not known error: ", err);
             window.showErrorMessage("Not known error!");
         }
-    } finally {
-        // 最后要保存
-        await settingsFile.save();
     }
 }
 

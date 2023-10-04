@@ -5,7 +5,7 @@ import { instanceToPlain, plainToClass } from 'class-transformer';
 import { SettingsInfo } from './settingsInfo';
 import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
 import { Crate, ProjectInfo } from './projectInfo';
-import { ExistError, NotFoundError } from '../error';
+import { ExistError, FileParseError, NotFoundError } from '../error';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 
@@ -26,15 +26,18 @@ export class SettingsFile {
 
     // 读取文件
     async load() {
-        // 读取settings文件
-        let readSettingsFile;
-        if(await checkFile(this.fileUri)) {
-            // 读取正常
-            readSettingsFile = await readJsonFile(this.fileUri);
+        try {
+            // 读取settings文件
+            let readSettingsFile;
+            if(await checkFile(this.fileUri)) {
+                // 读取正常
+                readSettingsFile = await readJsonFile(this.fileUri);
+            }
+            // 使用class-transformer将Object转换为SettingsInfo
+            this.fileInfo = plainToClass(SettingsInfo, readSettingsFile);   
+        } catch {
+            throw new FileParseError(`\"${SETTINGS_FILE_NAME}\"`);
         }
-
-        // 使用class-transformer将Object转换为SettingsInfo
-        this.fileInfo = plainToClass(SettingsInfo, readSettingsFile);   
     }
 
     // 保存文件
