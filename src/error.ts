@@ -1,8 +1,20 @@
-export class ExistError extends Error {
+class BaseError extends Error {
     message: string;
 
-    constructor(fileName: string) {
+    constructor(message: string) {
         super();
-        this.message = fileName + ' already exists.';
+        this.message = message;
+    }
+}
+
+export class ExistError extends BaseError {
+    constructor(fileName: string) {
+        super(fileName + ' already exists.');
+    }
+}
+
+export class NotFoundError extends BaseError {
+    constructor(fileNmae: string) {
+        super(fileNmae + ' not found.');
     }
 }
