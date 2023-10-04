@@ -1,25 +1,36 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+
 import { Uri } from 'vscode'; 
+import { NotFoundError } from '../error';
 
 // 如果rootUri没有被加载 则是null 否则Uri/undefined
-let rootUri: Uri | undefined = initRootUri();
+let rootUri: Uri = initRootUri();
 
-function initRootUri(): Uri | undefined {
+function initRootUri(): Uri {
     // [注意]这里返回数组只是因为vscode可能会打开多个数组
     let entries = vscode.workspace.workspaceFolders;
-    if (entries !== undefined && entries.length > 0) {
-        return entries[0].uri;
-    } else {
-        return undefined;
-    }
+    if (entries === undefined || entries.length === 0) {
+        throw new NotFoundError("The RootUri");
+    } 
+    
+    return entries[0].uri;
 }
 
 /**
  * 
  * @returns 返回当前工作区的第一个工作路径
  */
-export function getRootUri(): Uri|undefined {
+export function getRootUri(): Uri {
     return rootUri;
+}
+
+export function getRelativeUri(fileUri: Uri): string {
+    return path.relative(getRootUri().fsPath, fileUri.fsPath);
+}
+
+export function getAbsoluteUri(fileUri: string): Uri {
+    return Uri.joinPath(getRootUri(), fileUri);
 }
 
 // 验证文件是否存在
@@ -28,7 +39,6 @@ export async function checkFile(fileUri: vscode.Uri):
         
     return await vscode.workspace.fs.stat(fileUri).then(
         (fileStat) => {
-            // console.log(fileStat); 
             return fileStat; 
         },
         () => { return undefined; }
