@@ -5,7 +5,7 @@ import { Uri } from 'vscode';
 
 import { handleCreate, handleDelete } from './handler';
 import {initConfig} from './config';
-import { checkFile, getRootUri } from './fsUtils';
+import { checkFile, getRootUri } from './utils/fs';
 import { addCrateToCmd } from './command';
 
 const CARGO_TOML = "Cargo.toml";

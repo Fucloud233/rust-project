@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getRootUri } from './fsUtils';
+import { getRootUri } from './utils/fs';
 import { SettingsFile } from './info/settingsFile';
 
 class Command {
@@ -28,6 +28,7 @@ export const addCrateToCmd = vscode.commands.registerTextEditorCommand(
         vscode.window.showQuickPick(options)
             .then((selectedOption) => {
                 if(selectedOption) {
+                    options.indexOf(selectedOption);                 
                     vscode.window.showInformationMessage(`Your select ${selectedOption}`);
 
                     //TODO: 继续完成选择Crate的操作

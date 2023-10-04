@@ -3,7 +3,7 @@ import * as path from 'path';
 import { instanceToPlain, plainToClass } from 'class-transformer';
 
 import { SettingsInfo } from './settingsInfo';
-import { checkFile, writeJsonFile, readJsonFile } from '../fsUtils';
+import { checkFile, writeJsonFile, readJsonFile } from '../utils/fs';
 import { Crate, ProjectInfo } from './projectInfo';
 import { ExistError } from '../error';
 
