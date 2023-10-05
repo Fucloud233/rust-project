@@ -19,8 +19,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "rust-project.auto.addCrateTo",
-        "title": "Add Crate to ...",
+        "command": "rust-project.auto.importCrate",
+        "title": "Import Crate",
         "category": "rust-project",
         "enablement": "resourceExtname==.rs"
       },
