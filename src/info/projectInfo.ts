@@ -8,7 +8,7 @@ import * as path from 'path';
 
 import { projectConfig, PathType } from '../config';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { getAbsoluteUri, getRelativeUri } from '../utils/fs';
+import { getAbsoluteUri, getRelativeUri, uriToString } from '../utils/fs';
 import { relativeUriToCrateName } from '../utils/info';
 
 // 项目配置文件名
@@ -97,7 +97,8 @@ export class Crate {
     private display_name: string;
     // [注意] 此处是string类型
     private "edition": "2015" | "2018" | "2021";
-    private "deps": string[];
+    @Type(() => Dep)
+    private deps: Dep[];
 
     constructor(fileName: Uri=Uri.parse("")) {
         this._relative_root_module = getRelativeUri(fileName);
@@ -108,9 +109,18 @@ export class Crate {
         this.deps = [];
     }
 
-    isEqualWithUri(fileUri: Uri): boolean {
+    appendDep(dep: Dep) {
+        this.deps.push(dep);
+    }
+
+    isEqualWithUri(fileUri: Uri | string): boolean {
         // [注意] 不能直接比较Uri对象 需要比较fsPath对象
-        return this._root_module.fsPath === fileUri.fsPath;
+        let fileUriStr = uriToString(fileUri);
+        if(path.isAbsolute(fileUriStr)) {
+            return fileUriStr === this._root_module.fsPath;
+        } else {
+            return fileUriStr === this._relative_root_module;
+        }
     }
 
     isEqual(other: Crate, isStrict: boolean=false): boolean {
@@ -139,5 +149,31 @@ export class Crate {
             this._root_module = getAbsoluteUri(uriStr);
             this._relative_root_module = uriStr;
         }
+    }
+
+    get displayName(): string {
+        return this.display_name;
+    }
+
+    get relativeRootModule(): string {
+        return this._relative_root_module;
+    }
+
+    get absoluteRootModule(): string {
+        return this._root_module.fsPath;
+    }
+}
+
+export class Dep {
+    private crate: number;
+    private name: string;
+
+    constructor(index: number, name: string) {
+        this.crate = index;
+        this.name = name;
+    }
+
+    get index(): number {
+        return this.crate;
     }
 }
