@@ -25,8 +25,17 @@ export function getRootUri(): Uri {
     return rootUri;
 }
 
-export function getRelativeUri(fileUri: Uri): string {
-    return path.relative(getRootUri().fsPath, fileUri.fsPath);
+// 将Uri类型链接转换为字符串
+export function uriToString(fileUri: Uri | string): string {
+    if(fileUri instanceof Uri) {
+        return fileUri.fsPath;
+    } else {
+        return fileUri;
+    }
+}
+
+export function getRelativeUri(fileUri: Uri | string): string {
+    return path.relative(getRootUri().fsPath, uriToString(fileUri));
 }
 
 export function getAbsoluteUri(fileUri: string): Uri {
