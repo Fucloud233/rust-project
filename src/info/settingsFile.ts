@@ -1,6 +1,6 @@
 import { Uri } from 'vscode';
 import * as path from 'path';
-import { instanceToPlain, plainToClass } from 'class-transformer';
+import { Exclude, instanceToPlain, plainToClass } from 'class-transformer';
 
 import { SettingsInfo } from './settingsInfo';
 import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
@@ -9,18 +9,19 @@ import { ExistError, FileParseError, NotFoundError } from '../error';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 
-export class SettingsFile {
-    fileUri: Uri;
-    fileInfo: SettingsInfo;
+export class SettingsFile extends SettingsInfo {
+    @Exclude()
     rootUri: Uri;
+    @Exclude()
+    fileUri: Uri;
 
     constructor(rootUri: Uri | undefined = getRootUri()) {
+        super();
         if(rootUri===undefined) {
             throw new NotFoundError("The RootUri");
         } 
 
         this.fileUri = Uri.joinPath(rootUri, SETTINGS_FILE_NAME);
-        this.fileInfo = new SettingsInfo();
         this.rootUri = rootUri;
     }
 
@@ -34,7 +35,7 @@ export class SettingsFile {
                 readSettingsFile = await readJsonFile(this.fileUri);
             }
             // 使用class-transformer将Object转换为SettingsInfo
-            this.fileInfo = plainToClass(SettingsInfo, readSettingsFile);   
+            Object.assign(this,  plainToClass(SettingsInfo, readSettingsFile));   
         } catch {
             throw new FileParseError(`\"${SETTINGS_FILE_NAME}\"`);
         }
@@ -43,7 +44,7 @@ export class SettingsFile {
     // 保存文件
     async save() {
         try{
-            writeJsonFile(this.fileUri, instanceToPlain(this.fileInfo));
+            writeJsonFile(this.fileUri, instanceToPlain(this));
         } catch(error) {
             throw error;
         }
@@ -54,7 +55,7 @@ export class SettingsFile {
     // 添加项目信息
     appendProjectInfo(projectInfo: ProjectInfo | Uri) {
         // TODO: 判断是否会重复
-        this.fileInfo.appendProjectInfo(projectInfo);
+        super.appendProjectInfo(projectInfo);
     }
 
     /**
@@ -63,11 +64,10 @@ export class SettingsFile {
      */
     // [注意] 这里不是异步函数 (async)
     appendCrateToProjectInfo(crate: Crate) {
-        const project = this.fileInfo.firstProject;
+        const project = this.firstProject;
         // 如果不存在ProjectInfo则直接添加
         if(project === undefined) {
-            this.fileInfo
-                .appendProjectInfo(new ProjectInfo([crate]));
+            this.appendProjectInfo(new ProjectInfo([crate]));
             return;
         }
 
@@ -81,7 +81,7 @@ export class SettingsFile {
     }
 
     removeCrateFromProjectInfo(fileUri: Uri) {
-        const project = this.fileInfo.firstProject;
+        const project = this.firstProject;
         if(project === undefined)  {
             return;
         }        
@@ -95,7 +95,7 @@ export class SettingsFile {
     }
 
     getCratesRelativeUri(): string[] {
-        const project = this.fileInfo.firstProject;
+        const project = this.firstProject;
         if(project === undefined) {
             throw new Error();
         }
@@ -104,7 +104,7 @@ export class SettingsFile {
         let relativeUriList = [];
         for(let crate of cratesList) {
             relativeUriList.push(
-                path.relative(this.rootUri.fsPath, crate.rootModule)
+                crate.relativeRootModule
             );
         }
 
