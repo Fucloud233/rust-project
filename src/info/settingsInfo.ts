@@ -1,5 +1,5 @@
 import { Uri } from 'vscode';
-import { ProjectInfo } from "./projectInfo";
+import { Crate, ProjectInfo } from "./projectInfo";
 import { Type } from 'class-transformer';
 
 const FIELD_NAME = "rust-analyzer.linkedProjects";
@@ -40,6 +40,14 @@ export class SettingsInfo {
         return this.projects.findIndex((elem) => {
             return elem instanceof ProjectInfo;
         });
+    }
+
+    get cratesFromFirstProject(): Crate[] {
+        let project = this.firstProject;
+        if(project === undefined) {
+            return [];
+        }
+        return project.crates;
     }
 
     private get projects(): (ProjectInfo | String)[] {
