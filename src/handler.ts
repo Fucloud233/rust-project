@@ -1,10 +1,11 @@
 import { Uri, window } from 'vscode';
 
 import { projectConfig, SaveMethod, CreateMethod } from './config';
-import { ProjectInfo, Crate} from './info/projectInfo';
+import { ProjectInfo } from './info/projectInfo';
 import { SettingsFile } from './info/settingsFile';
 import { ProjectFile, getProjectFileUri } from './info/projectFile';
 import { BaseError, ExistError } from './error';
+import Crate from './info/Crate';
 
 /**
  * @deprecated 修改了新的运行逻辑

@@ -1,6 +1,7 @@
 import { Uri } from 'vscode';
-import { Crate, ProjectInfo } from "./projectInfo";
+import { ProjectInfo } from "./projectInfo";
 import { Type } from 'class-transformer';
+import Crate from './Crate';
 
 const FIELD_NAME = "rust-analyzer.linkedProjects";
 

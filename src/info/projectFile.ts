@@ -1,7 +1,8 @@
 import * as path from 'path';
 import { Uri } from 'vscode';
 import { checkFile, writeJsonFile, readJsonFile } from '../utils/fs';
-import { Crate, ProjectInfo } from './projectInfo';
+import { ProjectInfo } from './projectInfo';
+import Crate from './Crate';
 
 // 项目配置文件名
 export const PROJECT_FILE_NAME = "rust-project.json";
