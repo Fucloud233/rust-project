@@ -2,10 +2,11 @@ import { Uri } from 'vscode';
 import * as path from 'path';
 import { Exclude, instanceToPlain, plainToClass } from 'class-transformer';
 
-import { SettingsInfo } from './settingsInfo';
 import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
-import { Crate, ProjectInfo } from './projectInfo';
 import { ExistError, FileParseError, NotFoundError } from '../error';
+import { SettingsInfo } from './settingsInfo';
+import { ProjectInfo }  from './projectInfo';
+import Crate from './Crate';
 
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 
@@ -71,7 +72,7 @@ export class SettingsFile extends SettingsInfo {
             return;
         }
 
-        let index = project.findCrate(crate);
+        let index = project.findCrateIndex(crate);
         if(index === -1) {
             project.pushCrate(crate);
         } else {
@@ -86,12 +87,14 @@ export class SettingsFile extends SettingsInfo {
             return;
         }        
 
-        const crateIndex = project.findCrateWithUri(fileUri);
+        const crateIndex = project.findCrateIndexWithUri(fileUri);
         if(crateIndex === -1) {
             return;
         }
 
         project.removeCrate(crateIndex);
+        // 在删除crate时 crate的相对顺序改变 需要刷新依赖
+        project.refreshDeps();
     }
 
     getCratesRelativeUri(): string[] {
