@@ -4,12 +4,13 @@
 // https://github.com/Fucloud233/ra-exmaple/blob/method-3/.vscode/settings.json
 
 import { Uri }  from 'vscode';
-import * as path from 'path';
-
-import { projectConfig, PathType } from '../config';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { getAbsoluteUri, getRelativeUri, uriToString } from '../utils/fs';
-import { relativeUriToCrateName } from '../utils/info';
+import assert = require('assert');
+
+import { projectConfig } from '../config';
+import { ImportCyclesError } from '../error';
+import Crate from './Crate';
+import Dep from './Dep';
 
 // 项目配置文件名
 export const PROJECT_FILE_NAME = "rust-project.json";
@@ -39,15 +40,6 @@ export class ProjectInfo {
         this.crates.push(crate);
     }
 
-    checkCrate(crate: Crate, isStrict: boolean=false): boolean {
-        for(let _curCrate of this.crates) {
-            let curCrate = Object.assign(new Crate(), _curCrate);
-            if(curCrate.isEqual(crate, isStrict)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     // [注意] 如果使用Exclude 有getter必须要用setter
     @Type(()=>Crate)
@@ -59,24 +51,46 @@ export class ProjectInfo {
         this._crates = crates;
     }
 
-    findCrate(crate: Crate, isStrict: boolean=false): number {
+    findCrate(crate: Crate, isStrict: boolean=false): Crate | undefined {
         if(this.crates === undefined) {
-            return -1;
+            return undefined;
         }
 
-        return this.crates.findIndex((elem)=>{
-            return elem.isEqual(crate, isStrict);
-        });
+        return this.crates.find(
+            elem => elem.isEqual(crate, isStrict));
     }
 
-    findCrateWithUri(fileUri: Uri): number {
+    findCrateWithUri(fileUri: Uri | string): Crate | undefined {
         if(this.crates === undefined) {
-            return -1;
+            return undefined;
         }
 
-        return this.crates.findIndex((elem)=>{
-            return elem.isEqualWithUri(fileUri);
-        });
+        return this.crates.find(
+            elem => elem.isEqualWithUri(fileUri));
+    }
+
+    findCrateWithName(name: string): Crate | undefined {
+        return this.crates === undefined ? undefined
+            : this.crates.find(
+                (elem)=>elem.isEqualWithName(name));
+    }
+
+    findCrateIndex(crate: Crate, isStrict: boolean=false): number{
+        return this.crates === undefined ? -1
+            : this.crates.findIndex(
+                (elem)=>elem.isEqual(crate, isStrict));
+    }
+
+    findCrateIndexWithUri(fileUri: Uri | string): number {
+        return this.crates === undefined ? -1
+            : this.crates.findIndex(
+                (elem)=>elem.isEqualWithUri(fileUri));
+    }
+
+    findCrateIndexWithName(name: string): number {
+        return this.crates === undefined ? -1
+            : this.crates.findIndex(
+                (elem)=>elem.isEqualWithName(name));
     }
 
     /**
@@ -85,95 +99,73 @@ export class ProjectInfo {
     updatesCrates() {
 
     }
-}
+    
+    /* -------------------------------------------------------------------------------- */
+    /* Deps相关函数
+    /* -------------------------------------------------------------------------------- */
 
-export class Crate {
-    // 既保留绝对路径 又保留相对路径
-    @Exclude()
-    private _root_module: Uri ;
-    @Exclude()
-    private _relative_root_module: string;
-
-    private display_name: string;
-    // [注意] 此处是string类型
-    private "edition": "2015" | "2018" | "2021";
-    @Type(() => Dep)
-    private deps: Dep[];
-
-    constructor(fileName: Uri=Uri.parse("")) {
-        this._relative_root_module = getRelativeUri(fileName);
-        this._root_module = fileName;
-
-        this.display_name = relativeUriToCrateName(this._relative_root_module);
-        this.edition = projectConfig.defaultEdition;
-        this.deps = [];
+    refreshDeps() {
+        // 选择存在以来的crate
+        this.crates.filter((crate)=>crate.hasDeps)
+            .forEach((crate)=>{
+                crate.deps = crate.deps.map((dep: Dep) => {
+                    // 如果找不到对应的crate下标 则需要检索
+                    if(this.crates[dep.index] === undefined
+                        || !this.crates[dep.index].isEqualWithName(dep.name)) {
+                        let index = this.findCrateIndexWithName(dep.name);
+                        dep.index = index;
+                    }
+                    return dep;
+                }).filter((dep) => dep.index !== -1);
+                // 最后过滤找不到的crate
+            });
     }
 
-    appendDep(dep: Dep) {
-        this.deps.push(dep);
-    }
+    /**
+     * 验证输入的Crate的Deps树是否合法
+     * @param curCrate 
+     */
+    checkCrateDeps(curCrate: Crate) {
+        // 记录已经验证通过Crate下标
+        let okIndex: number[] = [];
+        // 记录导入链
+        let importChain: Crate[] = [curCrate];
 
-    isEqualWithUri(fileUri: Uri | string): boolean {
-        // [注意] 不能直接比较Uri对象 需要比较fsPath对象
-        let fileUriStr = uriToString(fileUri);
-        if(path.isAbsolute(fileUriStr)) {
-            return fileUriStr === this._root_module.fsPath;
-        } else {
-            return fileUriStr === this._relative_root_module;
+        // 开始验证该Crate的合法性
+        let crateStack: Crate[] = [curCrate];
+        while(crateStack.length > 0) {
+            let topCrate = crateStack.pop();
+            assert(topCrate !== undefined);
+            
+            // 逐个验证dep合法性
+            for(let dep of topCrate.deps) {
+                let depCrate = this.crates[dep.index];
+
+                // 1. 先验证dep与实际Crate是否匹配
+                // [注意] 假设每次dep都是合法的
+                // if(depCrate===undefined || !depCrate.isEqualWithName(dep.name)) {
+                //     throw new DepNotFoundError(curCrate.displayName, dep.name);
+                // }
+
+                if(depCrate.isEqual(curCrate)) {
+                    importChain.push(depCrate);
+                    throw new ImportCyclesError(
+                        importChain.map(crate=>crate.displayName)
+                    );
+                }
+
+                if(dep.index in okIndex) {
+                    // 该Crate被验证过了 则直接跳过
+                    continue;
+                } else if (!depCrate.hasDeps()) {
+                    // Crate没有依赖 肯定是对的
+                    okIndex.push(dep.index);
+                    continue;
+                } 
+
+                crateStack.push(depCrate);
+                importChain.push(depCrate);
+            }
         }
-    }
-
-    isEqual(other: Crate, isStrict: boolean=false): boolean {
-        if(isStrict) {
-            return this._root_module.fsPath === other._root_module.fsPath &&
-                this.edition === other.edition;
-        } else {
-            return this._root_module.fsPath === other._root_module.fsPath;
-        }
-    }
-
-    // 通过getter/setter重新定义字段root_module
-    @Expose({name: "root_module"})
-    get rootModule(): string {
-        switch(projectConfig.pathType) {
-            case PathType.relative: return this._relative_root_module;
-            case PathType.absolute: return this._root_module.fsPath;
-        }
-    }
-
-    set rootModule(uriStr: string) {
-        if(path.isAbsolute(uriStr)) {
-            this._root_module = Uri.parse(uriStr);
-            this._relative_root_module = getRelativeUri(this._root_module);
-        } else {
-            this._root_module = getAbsoluteUri(uriStr);
-            this._relative_root_module = uriStr;
-        }
-    }
-
-    get displayName(): string {
-        return this.display_name;
-    }
-
-    get relativeRootModule(): string {
-        return this._relative_root_module;
-    }
-
-    get absoluteRootModule(): string {
-        return this._root_module.fsPath;
-    }
-}
-
-export class Dep {
-    private crate: number;
-    private name: string;
-
-    constructor(index: number, name: string) {
-        this.crate = index;
-        this.name = name;
-    }
-
-    get index(): number {
-        return this.crate;
-    }
+    } 
 }
