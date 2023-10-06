@@ -1,8 +1,10 @@
 import { window, commands, QuickPickItem } from 'vscode';
+import assert = require('assert');
 
-import { getSettingsFile } from './info/settingsFile';
-import { getRelativeUri } from './utils/fs';
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
+import { getRelativeUri } from './utils/fs';
+import { getSettingsFile } from './info/settingsFile';
+import { ProjectInfo } from './info/projectInfo';
 import Crate from './info/Crate';
 import Dep from './info/Dep';
 
@@ -17,7 +19,13 @@ class Command {
 }
 
 class CrateItem implements QuickPickItem {
+    /**
+     * display name: Crate名
+     */
     label: string;
+    /**
+     * relative uri: Crate路径
+     */
     description:string;
     index: number;
     
@@ -35,37 +43,60 @@ class CrateItem implements QuickPickItem {
 export const addCrateToCmd = commands.registerTextEditorCommand(
     "rust-project.auto.importCrate",
     async (editor) => {
-        // 1. 读取项目信息
-        let settingsFile = getSettingsFile();
-        
-        let crates = settingsFile.cratesFromFirstProject;
-        if(crates.length === 0) {
-            window.showInformationMessage("There are not crates in your workspace.");
+        try {
+            // 1. 读取项目信息
+            let projectInfo = getSettingsFile().firstProject;
+            if(projectInfo === undefined || projectInfo.crates.length === 0) {
+                throw new BaseError("There are not crates in your workspace.");
+            }
+    
+            // 2. 获取当前Crate 与其Index
+            let curCrateUri = getRelativeUri(editor.document.fileName);
+            let curCrate = projectInfo.findCrateWithUri(curCrateUri);
+    
+            // 3. 加载选项 
+            assert(curCrate !== undefined);
+            let options = projectInfo.crates
+                // [注意] map和filter的顺序
+                .map((crate, index, _array) => new CrateItem(crate, index))
+                .filter((crate, index, _array) => {
+                    // (1) 判断是否是当前文件
+                    let flag = !curCrate?.isEqualWithName(crate.label);
+                    // (2) 判断是否在依赖中出现过
+                    curCrate?.deps.forEach(dep => 
+                        flag &&= index !== dep.index);
+                    return flag;
+                });
+            if(options.length === 0){
+                window.showWarningMessage("You have imported all the crates");
+                return;
+            }
+    
+            // 4. 打开QuickPick
+            const input = window.createQuickPick<CrateItem>();
+            input.placeholder = "Select the crate you want to import.";
+            input.items = options;
+            input.show(); 
+            input.onDidAccept(async () => {
+                // 获取选择Item的信息
+                let selectItem = input.selectedItems[0];
+                let index = selectItem.index,
+                    displayName = selectItem.label;
+                // 添加并保存依赖
+                // console.log(curFileIndex, displayName);
+                curCrate?.appendDep(new Dep(index, displayName));
+                await getSettingsFile().save();
+    
+                input.dispose();
+            });
+        } catch(error) {
+            if(error instanceof BaseError) {
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage(NOT_KNOW_ERROR);
+                console.log(error);
+            }
         }
-
-        // 2. 获取当前Crate 与其Index
-        let curFileUri = getRelativeUri(editor.document.fileName);
-        let curFileIndex = crates.findIndex((crate) => crate.isEqualWithUri(curFileUri));
-
-        // 3. 打开QuickPick
-        const input = window.createQuickPick<CrateItem>();
-        input.placeholder = "Select the crate you want to import.";
-        // [注意] map和filter的顺序
-        input.items = crates.map((crate, index, _array) => new CrateItem(crate, index))
-            .filter((crate, _index, _array) => !crate.isEqualWithUri(curFileUri));
-        input.show(); 
-        input.onDidAccept(async () => {
-            // 获取选择Item的信息
-            let selectItem = input.selectedItems[0];
-            let index = selectItem.index,
-                displayName = selectItem.label;
-            // 添加并保存依赖
-            // console.log(curFileIndex, displayName);
-            crates[curFileIndex].appendDep(new Dep(index, displayName));
-            await settingsFile.save();
-
-            input.dispose();
-        });
     }
 );
 
