@@ -3,7 +3,7 @@ import * as path from 'path';
 import { Exclude, instanceToPlain, plainToClass } from 'class-transformer';
 
 import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
-import { ExistError, FileParseError, NotFoundError } from '../error';
+import { BaseError, ExistError, FileParseError, NotFoundError } from '../error';
 import { SettingsInfo } from './settingsInfo';
 import { ProjectInfo }  from './projectInfo';
 import Crate from './Crate';
@@ -126,5 +126,8 @@ export async function initSettingsFile() {
 }
 
 export function getSettingsFile(): SettingsFile {
+    if(!isInit) {
+        throw new BaseError("Settings File hasn't been loaded yet. Please wait a moment!");
+    }
     return settingsFile;
 }
