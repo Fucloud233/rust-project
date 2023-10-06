@@ -7,6 +7,7 @@ import { handleCreate, handleDelete } from './handler';
 import {initConfig} from './config';
 import { checkFile, getRootUri } from './utils/fs';
 import { addCrateToCmd } from './command';
+import { initSettingsFile } from './info/settingsFile';
 
 const CARGO_TOML = "Cargo.toml";
 
@@ -35,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		deactivate(context);
 		console.log("Cargo.toml创建，不激活!");
 	});
+
 	// 根目录中存在Cargo.Toml 不激活函数
 	if(await checkFile(cargoTomlUri)) {
 		console.log("存在Cargo.toml项目，不激活!");
@@ -47,6 +49,10 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 function reactivate(context: vscode.ExtensionContext) {
+	// TODO: 目前只负责Auto模式 之后需要移动
+	// 初始化设置文件
+	initSettingsFile();
+
     // 当创建文件的时候激活
 	rsWatcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
     rsWatcher.onDidCreate(async (fileUri: Uri) => {

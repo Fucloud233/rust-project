@@ -1,6 +1,6 @@
 import { window, commands, QuickPickItem } from 'vscode';
 
-import { SettingsFile } from './info/settingsFile';
+import { getSettingsFile } from './info/settingsFile';
 import { getRelativeUri } from './utils/fs';
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
 import Crate from './info/Crate';
@@ -36,8 +36,7 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
     "rust-project.auto.importCrate",
     async (editor) => {
         // 1. 读取项目信息
-        let settingsFile = new SettingsFile();
-        await settingsFile.load();
+        let settingsFile = getSettingsFile();
         
         let crates = settingsFile.cratesFromFirstProject;
         if(crates.length === 0) {
@@ -74,7 +73,7 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
 export const checkDepsCmd = commands.registerTextEditorCommand(
     "rust-project.auto.checkDeps",
     async (editor) => {
-        let settingsFile = new SettingsFile();
+        let settingsFile = getSettingsFile();
         await settingsFile.load();
 
         let projectInfo = settingsFile.firstProject;

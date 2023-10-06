@@ -114,3 +114,17 @@ export class SettingsFile extends SettingsInfo {
         return relativeUriList;
     }
 }
+
+let settingsFile = new SettingsFile();
+let isInit = false;
+
+export async function initSettingsFile() {
+    if(!isInit) {
+        await settingsFile.load();
+        isInit = true;
+    }
+}
+
+export function getSettingsFile(): SettingsFile {
+    return settingsFile;
+}

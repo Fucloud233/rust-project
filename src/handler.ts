@@ -2,7 +2,7 @@ import { Uri, window } from 'vscode';
 
 import { projectConfig, SaveMethod, CreateMethod } from './config';
 import { ProjectInfo } from './info/projectInfo';
-import { SettingsFile } from './info/settingsFile';
+import { getSettingsFile } from './info/settingsFile';
 import { ProjectFile, getProjectFileUri } from './info/projectFile';
 import { BaseError, ExistError } from './error';
 import Crate from './info/Crate';
@@ -14,8 +14,7 @@ async function createSettingsFile(rootUri:  Uri, fileUri: Uri) {
     const crate = new Crate(fileUri);
     const projectInfo = new ProjectInfo([crate]);
     try {
-        let settingsFile = new SettingsFile(rootUri);
-        await settingsFile.load();
+        let settingsFile = getSettingsFile();
         settingsFile.appendProjectInfo(projectInfo);
         settingsFile.save();
     } catch (e) {
@@ -36,7 +35,7 @@ async function createProjectFile(projectFileUri: Uri, rootUri: Uri, fileUri: Uri
     // 2. 然后在.vscode/settings.json中配置
     const isRoot = rootUri === fileUri;
     if(!isRoot) {
-        let settingsFile = new SettingsFile(rootUri);
+        let settingsFile = getSettingsFile();
         await settingsFile.load();
         settingsFile.appendProjectInfo(projectFileUri);
         settingsFile.save();
@@ -97,9 +96,9 @@ export async function handleOld(rootUri: Uri, fileUri: Uri) {
 // 向settingsFile中添加Crate
 // [注意] 添加Crate不会影响crates的顺序
 async function appendCrateToSettingsFile(fileUri: Uri) {
-    let settingsFile = new SettingsFile();
+    let settingsFile = getSettingsFile();
+
     try {
-        await settingsFile.load();
         settingsFile.appendCrateToProjectInfo(new Crate(fileUri));
         // console.log("SettingsFile: ", settingsFile.fileInfo.firstProject);
         // [注意] 保存不能写在finally 当出现错误时 可能会空白覆盖
@@ -135,8 +134,7 @@ export async function handleDelete(fileUri: Uri) {
     switch(projectConfig.createMethod) {
         // 自动存储在settings中
         case CreateMethod.auto: {
-            let settingsFile = new SettingsFile();
-            await settingsFile.load();
+            let settingsFile = getSettingsFile();
             settingsFile.removeCrateFromProjectInfo(fileUri);
             await settingsFile.save();
             break;
