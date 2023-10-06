@@ -1,8 +1,10 @@
 import { window, commands, QuickPickItem } from 'vscode';
 
 import { SettingsFile } from './info/settingsFile';
-import { Crate, Dep } from './info/projectInfo';
 import { getRelativeUri } from './utils/fs';
+import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
+import Crate from './info/Crate';
+import Dep from './info/Dep';
 
 class Command {
     name: string;
@@ -65,6 +67,40 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
 
             input.dispose();
         });
+    }
+);
+
+// 验证指令是否正常的指令
+export const checkDepsCmd = commands.registerTextEditorCommand(
+    "rust-project.auto.checkDeps",
+    async (editor) => {
+        let settingsFile = new SettingsFile();
+        await settingsFile.load();
+
+        let projectInfo = settingsFile.firstProject;
+        if(projectInfo === undefined) {
+            window.showErrorMessage("There are not projects in your workspace");
+            return;
+        }
+
+        let curFileUri = getRelativeUri(editor.document.fileName);
+        let curCrate = projectInfo.findCrateWithUri(curFileUri);
+        try {
+            if(curCrate===undefined) {
+                throw new CrateNotFoundError(curFileUri);
+            }
+            // 验证Crates的依赖
+            projectInfo.checkCrateDeps(curCrate);
+
+            window.showInformationMessage("The tree of Deps is ok.");
+        } catch (error) {
+            if(error instanceof BaseError) {
+                window.showErrorMessage(error.message);
+            } else {
+                window.showErrorMessage(NOT_KNOW_ERROR);
+                console.log(error);
+            }
+        }
     }
 );
 

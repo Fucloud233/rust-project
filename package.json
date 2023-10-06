@@ -25,6 +25,12 @@
         "enablement": "resourceExtname==.rs"
       },
       {
+        "command": "rust-project.auto.checkDeps",
+        "title": "Check Deps",
+        "category": "rust-project",
+        "enablement": "resourceExtname==.rs"
+      },
+      {
         "command": "rust-project.helloWorld",
         "title": "Hello World"
       },
