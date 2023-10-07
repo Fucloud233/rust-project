@@ -30,10 +30,6 @@ export default class Crate {
         this._deps = [];
     }
 
-    appendDep(dep: Dep) {
-        this.deps.push(dep);
-    }
-
     isEqualWithUri(fileUri: Uri | string): boolean {
         // [注意] 不能直接比较Uri对象 需要比较fsPath对象
         let fileUriStr = uriToString(fileUri);
@@ -57,6 +53,26 @@ export default class Crate {
         }
 
         return flag;
+    }
+
+    appendDep(dep: Dep) {
+        this.deps.push(dep);
+    }
+
+    removeDep(dep: Dep) {
+        const index = this.findDep(dep);
+        if(index !== -1) {
+            this.deps.splice(index, 1);
+        }
+    }
+
+    removeDepWithIndex(index: number) {
+        this.deps.splice(index, 1);
+    }
+
+    findDep(dep: Dep): number {
+        return this.deps.findIndex(curDep=>
+            curDep.name === dep.name);
     }
 
     hasDeps(): boolean {
