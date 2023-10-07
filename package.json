@@ -2,7 +2,7 @@
   "name": "rust-project",
   "displayName": "rust-project",
   "description": "Create rust project without Cargo.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.82.0"
   },
@@ -40,14 +40,6 @@
         "title": "Check Deps",
         "category": "rust-project",
         "enablement": "resourceExtname==.rs"
-      },
-      {
-        "command": "rust-project.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "rust-project.addFile",
-        "title": "Add File"
       }
     ],
     "menus": {
