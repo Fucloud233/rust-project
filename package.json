@@ -25,6 +25,17 @@
         "enablement": "resourceExtname==.rs"
       },
       {
+        "command": "rust-project.auto.unimportCrate",
+        "title": "Unimport Crate",
+        "category": "rust-project",
+        "enablement": "resourceExtname==.rs"
+      },
+      {
+        "command": "rust-project.auto.reloadSettingsFile",
+        "title": "Reload Settings File",
+        "category": "rust-project"
+      },
+      {
         "command": "rust-project.auto.checkDeps",
         "title": "Check Deps",
         "category": "rust-project",
