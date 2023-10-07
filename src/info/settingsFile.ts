@@ -116,17 +116,23 @@ export class SettingsFile extends SettingsInfo {
 }
 
 let settingsFile = new SettingsFile();
-let isInit = false;
+let isOk = false;
 
-export async function initSettingsFile() {
-    if(!isInit) {
+export async function loadSettingsFile() {
+    if(!isOk) {
         await settingsFile.load();
-        isInit = true;
+        isOk = true;
     }
 }
 
+export async function reloadSettingsFile() {
+    isOk = false;
+    await settingsFile.load();
+    isOk = true;
+}
+
 export function getSettingsFile(): SettingsFile {
-    if(!isInit) {
+    if(!isOk) {
         throw new BaseError("Settings File hasn't been loaded yet. Please wait a moment!");
     }
     return settingsFile;

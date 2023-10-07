@@ -7,7 +7,7 @@ import { handleCreate, handleDelete } from './handler';
 import {initConfig} from './config';
 import { checkFile, getRootUri } from './utils/fs';
 import { addCrateToCmd } from './command';
-import { initSettingsFile } from './info/settingsFile';
+import { loadSettingsFile } from './info/settingsFile';
 
 const CARGO_TOML = "Cargo.toml";
 
@@ -51,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
 function reactivate(context: vscode.ExtensionContext) {
 	// TODO: 目前只负责Auto模式 之后需要移动
 	// 初始化设置文件
-	initSettingsFile();
+	loadSettingsFile();
 
     // 当创建文件的时候激活
 	rsWatcher = vscode.workspace.createFileSystemWatcher("**/*.rs");
