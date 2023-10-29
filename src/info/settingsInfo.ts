@@ -5,6 +5,8 @@ import Crate from './Crate';
 
 const FIELD_NAME = "rust-analyzer.linkedProjects";
 
+// ProjectInfo 可能存在多个 (但我们尽量保证只有1个 且只操作1个)
+// String 肯定才能在多个
 export class SettingsInfo {
     @Type(() => ProjectInfo)
     // eslint-disable-next-line @typescript-eslint/naming-convention
