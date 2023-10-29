@@ -97,6 +97,7 @@ export async function getProjectFileUri(rootPath: Uri, filePath: Uri):
 }
 
 // 判断文件夹上级是否存在当前文件夹
+// TODO: 此处的判断机制需要被重构
 export async function checkProjectFileExistInParentDir(folderPath: Uri): 
         Promise<[boolean, Uri | undefined]>{
     // let parentDir = getRelativeUri(folderPath);
