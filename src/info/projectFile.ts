@@ -1,5 +1,7 @@
 import * as path from 'path';
 import { Uri } from 'vscode';
+import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
+
 import { getRootUri, checkFileExist, writeJsonFile, readJsonFile } from '../utils/fs';
 import { ProjectInfo } from './projectInfo';
 import Crate from './Crate';
@@ -7,28 +9,22 @@ import Crate from './Crate';
 // 项目配置文件名
 export const PROJECT_FILE_NAME = "rust-project.json";
 
-export class ProjectFile {
+export class ProjectFile extends ProjectInfo {
+    @Exclude()
     fileUri: Uri;
-    fileJson: any;    
 
-    constructor(fileUri: Uri) {
+    constructor(fileUri: Uri, crates: Crate[] = []) {
+        super(crates);
         this.fileUri = fileUri;
-    }
-
-    // 初始化配置信息文件
-    init(crate: Crate | undefined) {
-        if(crate === undefined) {
-            this.fileJson = new ProjectInfo([]);
-        } else {
-            this.fileJson = new ProjectInfo([crate]);
-        }
     }
 
     async load() {
         try {
+            let loadProjectInfo;
             if(await checkFileExist(this.fileUri)) {
-                this.fileJson = await readJsonFile(this.fileUri);
+                loadProjectInfo = await readJsonFile(this.fileUri);
             }
+            Object.assign(this, plainToInstance(ProjectInfo, loadProjectInfo));            
         } catch (error) {
             throw error;
         }
@@ -36,14 +32,31 @@ export class ProjectFile {
 
     async save() {
         try {
-            writeJsonFile(this.fileUri, this.fileJson);
+            // 使用class-transformer保存
+            writeJsonFile(this.fileUri, instanceToPlain(this));
         } catch(error) {
             throw error;
         }
     }
 
+    /**
+     * 初始化配置信息文件
+     * @deprecated
+     *  */ 
+    init(crate: Crate | undefined) {
+        if(crate === undefined) {
+            // this.fileJson = new ProjectInfo([]);
+        } else {
+            // this.fileJson = new ProjectInfo([crate]);
+        }
+    }
+
+    /**
+     * @deprecated
+     * @param crate 
+     */
     appendCrate(crate: Crate) {
-        this.fileJson["crates"].push(crate);
+        this["crates"].push(crate);
     }
 }
 
@@ -105,7 +118,6 @@ export async function checkProjectFileExistInParentDir(folderPath: Uri):
 export function createProjectFile(folderPath: Uri): Uri {   
     let projectFileUri = Uri.joinPath(folderPath, PROJECT_FILE_NAME);
     let projectFile = new ProjectFile(projectFileUri);
-    projectFile.init(undefined);
     projectFile.save();
 
     return projectFileUri;
