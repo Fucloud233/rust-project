@@ -40,14 +40,20 @@
         "title": "Check Deps",
         "category": "rust-project",
         "enablement": "resourceExtname==.rs"
+      },
+      {
+        "command": "rust-project.createRustProject",
+        "title": "Create rust-project",
+        "category": "rust-project",
+        "enablement": "explorerResourceIsFolder"
       }
     ],
     "menus": {
-      "editor/context": [
+      "explorer/context":[
         {
-          "command": "rust-project.addFile",
-          "group": "1_modification",
-          "when": "resourceLangId  == rust"
+          "command": "rust-project.createRustProject",
+          "group": "2_workspace",
+          "when": "explorerResourceIsFolder"
         }
       ]
     },

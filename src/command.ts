@@ -1,9 +1,12 @@
-import { window, commands, QuickPickItem } from 'vscode';
+import { Uri, window, commands, QuickPickItem } from 'vscode';
 import assert = require('assert');
 
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
 import { getRelativeUri } from './utils/fs';
+
+import { createProjectFile, checkProjectFileExistInParentDir } from './info/projectFile';
 import { getSettingsFile, reloadSettingsFile } from './info/settingsFile';
+
 import Crate from './info/Crate';
 import Dep from './info/Dep';
 
@@ -194,3 +197,22 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
     }
 );
 
+export const createRustProject = commands.registerCommand(
+    "rust-project.createRustProject",
+    async (folderPath: Uri) => {
+
+        // 检查上级目录是否存在rust-project文件
+        let [isExist, _] = await checkProjectFileExistInParentDir(folderPath);
+
+        if(isExist) {
+            window.showErrorMessage("The rust-project file has already exists in the parent dirctory. " +
+                "You can't create a new one.");
+            return;
+        }
+       
+        // 向setting.json中添加
+        let settingsFile = getSettingsFile();
+        settingsFile.appendProjectInfo(createProjectFile(folderPath));
+        settingsFile.save();
+    }
+);
