@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import { Uri } from 'vscode'; 
+import { Uri, FileStat } from 'vscode'; 
 import { NotFoundError } from '../error';
 
 // 如果rootUri没有被加载 则是null 否则Uri/undefined
@@ -42,15 +42,30 @@ export function getAbsoluteUri(fileUri: string): Uri {
     return Uri.joinPath(getRootUri(), fileUri);
 }
 
-// 验证文件是否存在
+/**
+ * 验证文件是否存在
+ * @deprecated
+ * @param fileUri 
+ * @returns 
+ */
 export async function checkFile(fileUri: vscode.Uri): 
     Promise<vscode.FileStat | undefined> {
-        
+
     return await vscode.workspace.fs.stat(fileUri).then(
         (fileStat) => {
             return fileStat; 
         },
         () => { return undefined; }
+    );
+}
+
+export async function checkFileExist(fileUri: Uri): 
+        Promise<FileStat|undefined> {
+    
+    // 当正常读取时 返回对应fileStat; 否则回返undefined
+    return await vscode.workspace.fs.stat(fileUri).then(
+        (fileStat) => fileStat,
+        () => undefined
     );
 }
 
