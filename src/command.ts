@@ -44,7 +44,7 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
     async (editor) => {
         try {
             // 1. 读取项目信息
-            let projectInfo = getSettingsFile().firstProject;
+            let projectInfo = getSettingsFile().firstInfoItem;
             if(projectInfo === undefined || projectInfo.crates.length === 0) {
                 throw new BaseError("There are not crates in your workspace.");
             }
@@ -104,7 +104,7 @@ export const unimportCrate = commands.registerTextEditorCommand(
     async(editor)=> {
         try {
             // 1. 读取项目信息
-            let projectInfo = getSettingsFile().firstProject;
+            let projectInfo = getSettingsFile().firstInfoItem;
             if(projectInfo === undefined || projectInfo.crates.length === 0) {
                 throw new BaseError("There are not crates in your workspace.");
             }
@@ -167,7 +167,7 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
         let settingsFile = getSettingsFile();
         await settingsFile.load();
 
-        let projectInfo = settingsFile.firstProject;
+        let projectInfo = settingsFile.firstInfoItem;
         if(projectInfo === undefined) {
             window.showErrorMessage("There are not projects in your workspace");
             return;

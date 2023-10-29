@@ -11,8 +11,10 @@ import Crate from './Crate';
 const SETTINGS_FILE_NAME = path.join(".vscode", "settings.json");
 
 export class SettingsFile extends SettingsInfo {
+    // 项目文件夹路径
     @Exclude()
     rootUri: Uri;
+    // Settings文件路径
     @Exclude()
     fileUri: Uri;
 
@@ -65,7 +67,7 @@ export class SettingsFile extends SettingsInfo {
      */
     // [注意] 这里不是异步函数 (async)
     appendCrateToProjectInfo(crate: Crate) {
-        const project = this.firstProject;
+        const project = this.firstInfoItem;
         // 如果不存在ProjectInfo则直接添加
         if(project === undefined) {
             this.appendProjectInfo(new ProjectInfo([crate]));
@@ -82,7 +84,7 @@ export class SettingsFile extends SettingsInfo {
     }
 
     removeCrateFromProjectInfo(fileUri: Uri) {
-        const project = this.firstProject;
+        const project = this.firstInfoItem;
         if(project === undefined)  {
             return;
         }        
@@ -98,7 +100,7 @@ export class SettingsFile extends SettingsInfo {
     }
 
     getCratesRelativeUri(): string[] {
-        const project = this.firstProject;
+        const project = this.firstInfoItem;
         if(project === undefined) {
             throw new Error();
         }
