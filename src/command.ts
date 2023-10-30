@@ -202,6 +202,8 @@ export const createRustProject = commands.registerCommand(
     async (folderUri: Uri) => {
         let settingsFile = getSettingsFile();
 
+        console.log("before: ", settingsFile);
+
         // 检查上级目录是否存在rust-project文件
         let isExist = settingsFile.checkRustProjectExist(folderUri);
 
@@ -218,5 +220,7 @@ export const createRustProject = commands.registerCommand(
         // 向settings.json中添加项目信息
         settingsFile.appendProjectInfo(projectFile.fileUri);
         settingsFile.save();
+
+        console.log("after: ", settingsFile);
     }
 );

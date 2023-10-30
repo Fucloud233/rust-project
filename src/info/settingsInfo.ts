@@ -41,8 +41,7 @@ export class SettingsInfo {
         // 获得相对路径
         let folderPath = utils.getRelativeUri(folderUri);
 
-        for(let infoPath in this.infoPathItems) {
-            console.log(infoPath, folderPath);
+        for(let infoPath of this.infoPathItems) {
             if(infoPath.startsWith(folderPath) !== undefined) {
                 return true;
             }

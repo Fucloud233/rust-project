@@ -137,5 +137,6 @@ export function getSettingsFile(): SettingsFile {
     if(!isOk) {
         throw new BaseError("Settings File hasn't been loaded yet. Please wait a moment!");
     }
+
     return settingsFile;
 }
