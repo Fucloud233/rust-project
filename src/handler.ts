@@ -1,97 +1,9 @@
 import { Uri, window } from 'vscode';
 
-import { projectConfig, SaveMethod, CreateMethod } from './config';
-import { ProjectInfo } from './info/projectInfo';
+import { projectConfig, CreateMethod } from './config';
 import { getSettingsFile } from './info/settingsFile';
-import { ProjectFile, getProjectFileUri } from './info/projectFile';
 import { BaseError, ExistError } from './error';
 import Crate from './info/Crate';
-
-/**
- * @deprecated 修改了新的运行逻辑
- */
-async function createSettingsFile(rootUri:  Uri, fileUri: Uri) {
-    const crate = new Crate(fileUri);
-    const projectInfo = new ProjectInfo([crate]);
-    try {
-        let settingsFile = getSettingsFile();
-        settingsFile.appendProjectInfo(projectInfo);
-        settingsFile.save();
-    } catch (e) {
-        console.log(e);
-    }
-}
-
-/**
- * @deprecated 修改了新的运行逻辑
- */
-// 使用rust-project配置
-async function createProjectFile(projectFileUri: Uri, rootUri: Uri, fileUri: Uri) {
-    // 1. 在rust-project中配置
-    let projectFile = new ProjectFile(projectFileUri);
-    projectFile.init(new Crate(fileUri));
-    projectFile.save();
-
-    // 2. 然后在.vscode/settings.json中配置
-    const isRoot = rootUri === fileUri;
-    if(!isRoot) {
-        let settingsFile = getSettingsFile();
-        await settingsFile.load();
-        settingsFile.appendProjectInfo(projectFileUri);
-        settingsFile.save();
-    }
-} 
-
-/**
- * @deprecated 修改了新的运行逻辑
- */
-// 修改rust-project配置文件
-async function modifyProjectFile(projectFileUri: Uri, fileUri: Uri) {
-    let projectFile = new ProjectFile(projectFileUri);
-    await projectFile.load();
-
-    // console.log(projectFile);
-
-    projectFile.appendCrate(new Crate(fileUri));
-    projectFile.save();
-}
-
-/**
- * @deprecated 修改了新的运行逻辑
- * @param rootUri 
- * @param fileUri 
- */
-export async function handleOld(rootUri: Uri, fileUri: Uri) {
-    // 检测rust-project.json项目文件
-    try {
-        const saveMethod = projectConfig.saveMethod;
-        switch(saveMethod) {
-            // 如果使用存储在settings中
-            case SaveMethod.settings: {
-                createSettingsFile(rootUri, fileUri);
-                break;
-            };
-
-            // 如果使用存储在rust-project中
-            case SaveMethod.rustProject: {
-                // 1. 查找projectfile文件
-                let [projectFileUri, isExist] = await getProjectFileUri(rootUri, fileUri);
-
-                if (isExist) {
-                    // (1) 存在 -> 修改该项目文件
-                    modifyProjectFile(projectFileUri, fileUri);
-                } else {
-                    // (2) 不存在 -> 在当前文件中创建rust-project
-                    createProjectFile(projectFileUri, rootUri, fileUri);
-                }
-
-                break;
-            }
-        };
-    } catch (error) {
-        window.showErrorMessage("项目文件检测失败!");
-    }
-}
 
 // 向settingsFile中添加Crate
 // [注意] 添加Crate不会影响crates的顺序

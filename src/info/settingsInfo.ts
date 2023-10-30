@@ -116,41 +116,4 @@ export class SettingsInfo {
 
         return this.infoItems[0];
     }
-
-    /**
-     * @deprecated
-     * 返回第一个项目信息
-     */
-    get firstProject(): ProjectInfo | undefined {
-        // 如果读取为空 
-        if(this.projects === undefined) {
-            return undefined;
-        }
-
-        // [注意] 只能使用这种写法 否则编译器会认为存在String
-        for(let project of this.projects) {
-            if(project instanceof ProjectInfo) {
-                return project;
-            }
-        }  
-    }
-
-    /**
-     * @deprecated
-     * 返回第一个项目信息的下标
-     */
-
-    get firstProjectIndex(): number {
-        return this.projects.findIndex((elem) => {
-            return elem instanceof ProjectInfo;
-        });
-    }
-
-    /**
-     * @deprecated
-     * 返回所有的项目信息
-     */
-    private get projects(): (ProjectInfo | String)[] {
-        return this[FIELD_NAME];
-    }
 }
