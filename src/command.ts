@@ -199,10 +199,10 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
 
 export const createRustProject = commands.registerCommand(
     "rust-project.createRustProject",
-    async (folderPath: Uri) => {
-
+    async (folderUri: Uri) => {
+        let settingsFile = getSettingsFile();
         // 检查上级目录是否存在rust-project文件
-        let [isExist, _] = await checkProjectFileExistInParentDir(folderPath);
+        let isExist = settingsFile.checkRustProjectExist(folderUri);
 
         if(isExist) {
             window.showErrorMessage("The rust-project file has already exists in the parent dirctory. " +
@@ -211,8 +211,7 @@ export const createRustProject = commands.registerCommand(
         }
        
         // 向setting.json中添加
-        let settingsFile = getSettingsFile();
-        settingsFile.appendProjectInfo(createProjectFile(folderPath));
+        settingsFile.appendProjectInfo(createProjectFile(folderUri));
         settingsFile.save();
     }
 );

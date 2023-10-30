@@ -2,15 +2,17 @@ import { Uri } from 'vscode';
 import { ProjectInfo } from "./projectInfo";
 import { Exclude, Type, Expose } from 'class-transformer';
 import Crate from './Crate';
+import * as utils from '../utils/fs';
 
 const FIELD_NAME = "rust-analyzer.linkedProjects";
 
 // ProjectInfo 可能存在多个 (但我们尽量保证只有1个 且只操作1个)
 // String 肯定才能在多个
 export class SettingsInfo {
-    // 将项目信息分为两个数组进行存储
+    // 项目信息 项
     @Exclude()
     private infoItems: ProjectInfo[];
+    // 项目信息路径 项 - ruest-project.json路径
     @Exclude()
     private infoPathItems: String[];
 
@@ -22,10 +24,31 @@ export class SettingsInfo {
     // 添加项目信息
     appendProjectInfo(projectInfo: ProjectInfo | Uri) {
         if(projectInfo instanceof Uri) {
-            this.infoPathItems.push(projectInfo.fsPath);
+            // 使用相对路径存储
+            let relativePath = utils.getRelativeUri(projectInfo);
+            this.infoPathItems.push(relativePath);
         } else {
             this.infoItems.push(projectInfo);
         }
+    }
+
+    /**
+     * 传入文件夹路径 验证rust-project是否存在
+     * @param folderUri 
+     * @returns 
+     */
+    checkRustProjectExist(folderUri: Uri): boolean {
+        // 获得相对路径
+        let folderPath = utils.getRelativeUri(folderUri);
+
+        for(let infoPath in this.infoPathItems) {
+            console.log(infoPath, folderPath);
+            if(infoPath.startsWith(folderPath) !== undefined) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     get cratesFromFirstProject(): Crate[] {
@@ -51,6 +74,7 @@ export class SettingsInfo {
 
         return projects;
     }
+
     set linkedProjects(projects: (String | ProjectInfo)[] ) {
         // 根据输入Project类型放在不同的数组之中            
         for(let project of projects) {
