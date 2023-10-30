@@ -1,6 +1,6 @@
 import { Uri } from 'vscode';
 import { ProjectInfo } from "./projectInfo";
-import { Exclude, Type, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform, plainToInstance } from 'class-transformer';
 import Crate from './Crate';
 import * as utils from '../utils/fs';
 
@@ -42,7 +42,8 @@ export class SettingsInfo {
         let folderPath = utils.getRelativeUri(folderUri);
 
         for(let infoPath of this.infoPathItems) {
-            if(infoPath.startsWith(folderPath) !== undefined) {
+            // startsWith -> boolean
+            if(infoPath.startsWith(folderPath)) {
                 return true;
             }
         }
@@ -58,7 +59,18 @@ export class SettingsInfo {
         return project.crates;
     }
 
-    @Type(() => ProjectInfo)
+    // use custom transfomer, remember to let 'toClassOnly' true
+    // otherwise class-transformer will use below functiong 
+    // when InstanceToPlain
+    @Transform(value => {
+        let items: any[] = value['value'];
+        return items.map((item, _index, _array) => {
+            if(typeof item === 'string') {
+                return item;
+            }
+            return plainToInstance(ProjectInfo, item);
+        });
+    }, { toClassOnly: true })
     @Expose({name: FIELD_NAME})
     get linkedProjects(): (String | ProjectInfo)[] {
         let projects: (String | ProjectInfo)[] = [];
@@ -77,14 +89,14 @@ export class SettingsInfo {
     set linkedProjects(projects: (String | ProjectInfo)[] ) {
         // 根据输入Project类型放在不同的数组之中            
         for(let project of projects) {
-            if(project instanceof String) {
-                this.infoPathItems.push(project);
-            } else if(project instanceof ProjectInfo) {
+            if(project instanceof ProjectInfo) {
                 this.infoItems.push(project);
+            } else if(typeof project === 'string') {
+                // !!! use 'typeof' judge the type of string
+                this.infoPathItems.push(project);
             }
         }
     } 
-
 
     /**
      * @deprecated
