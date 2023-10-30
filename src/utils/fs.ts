@@ -69,6 +69,14 @@ export async function checkFileExist(fileUri: Uri):
     );
 }
 
+export async function checkFolderEmpty(fileUri: Uri):
+        Promise<boolean> {
+    return await vscode.workspace.fs.readDirectory(fileUri).then(
+        (entries) => entries.length === 0,
+        () => false
+    );
+}
+
 // 读取文件
 export async function readFile(fileUri: vscode.Uri): Promise<Uint8Array> {
     return await vscode.workspace.fs.readFile(fileUri).then(

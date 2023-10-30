@@ -2,7 +2,7 @@ import { Uri, window, commands, QuickPickItem } from 'vscode';
 import assert = require('assert');
 
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
-import { getRelativeUri } from './utils/fs';
+import { getRelativeUri, checkFolderEmpty } from './utils/fs';
 
 import { ProjectFile } from './info/projectFile';
 import { getSettingsFile, reloadSettingsFile } from './info/settingsFile';
@@ -204,12 +204,17 @@ export const createRustProject = commands.registerCommand(
 
         console.log("before: ", settingsFile);
 
-        // 检查上级目录是否存在rust-project文件
-        let isExist = settingsFile.checkRustProjectExist(folderUri);
+        // [deprecated] 检查上级目录是否存在rust-project文件
+        // let isExist = settingsFile.checkRustProjectExist(folderUri);
+        
+        // if the folder is empty
+        // it's not necessary to check whether rust-project exists
+        let isEmpty = await checkFolderEmpty(folderUri);
 
-        if(isExist) {
-            window.showErrorMessage("The rust-project file has already exists in the parent dirctory. " +
-                "You can't create a new one.");
+        if(isEmpty) {
+            // window.showErrorMessage("The rust-project file has already exists in the parent dirctory. " +
+            //     "You can't create a new one.");
+            window.showErrorMessage("The folder is not empty.");
             return;
         }
        
