@@ -4,7 +4,7 @@ import assert = require('assert');
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
 import { getRelativeUri } from './utils/fs';
 
-import { createProjectFile, checkProjectFileExistInParentDir } from './info/projectFile';
+import { ProjectFile } from './info/projectFile';
 import { getSettingsFile, reloadSettingsFile } from './info/settingsFile';
 
 import Crate from './info/Crate';
@@ -201,6 +201,7 @@ export const createRustProject = commands.registerCommand(
     "rust-project.createRustProject",
     async (folderUri: Uri) => {
         let settingsFile = getSettingsFile();
+
         // 检查上级目录是否存在rust-project文件
         let isExist = settingsFile.checkRustProjectExist(folderUri);
 
@@ -210,8 +211,12 @@ export const createRustProject = commands.registerCommand(
             return;
         }
        
-        // 向setting.json中添加
-        settingsFile.appendProjectInfo(createProjectFile(folderUri));
+        // 保存rust-project.json文件
+        let projectFile = new ProjectFile(folderUri);
+        projectFile.save();
+        
+        // 向settings.json中添加项目信息
+        settingsFile.appendProjectInfo(projectFile.fileUri);
         settingsFile.save();
     }
 );

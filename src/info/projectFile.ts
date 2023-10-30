@@ -2,7 +2,7 @@ import * as path from 'path';
 import { Uri } from 'vscode';
 import { Exclude, instanceToPlain, plainToInstance } from 'class-transformer';
 
-import { getRootUri, checkFileExist, writeJsonFile, readJsonFile } from '../utils/fs';
+import { checkFileExist, writeJsonFile, readJsonFile } from '../utils/fs';
 import { ProjectInfo } from './projectInfo';
 import Crate from './Crate';
 
@@ -11,11 +11,12 @@ export const PROJECT_FILE_NAME = "rust-project.json";
 
 export class ProjectFile extends ProjectInfo {
     @Exclude()
-    fileUri: Uri;
+    private _fileUri: Uri;
 
-    constructor(fileUri: Uri, crates: Crate[] = []) {
+    // 使用文件夹初始化
+    constructor(folderUri: Uri, crates: Crate[] = []) {
         super(crates);
-        this.fileUri = fileUri;
+        this._fileUri = this.generateFileUri(folderUri);
     }
 
     async load() {
@@ -58,6 +59,15 @@ export class ProjectFile extends ProjectInfo {
     appendCrate(crate: Crate) {
         this["crates"].push(crate);
     }
+
+    private generateFileUri(fileUri: Uri) {
+        // 直接添加rust-project.json
+        return Uri.joinPath(fileUri, PROJECT_FILE_NAME);
+    }
+
+    get fileUri() {
+        return this._fileUri;
+    }
 }
 
 // 判断ProjectFile是否存在
@@ -94,34 +104,4 @@ export async function getProjectFileUri(rootPath: Uri, filePath: Uri):
     }
 
     return [curPath, false];
-}
-
-/**
- * 判断文件夹上级是否存在当前文件夹
- * @deprecated
- */
-export async function checkProjectFileExistInParentDir(folderPath: Uri): 
-        Promise<[boolean, Uri | undefined]>{
-    // let parentDir = getRelativeUri(folderPath);
-    let parentDir = Uri.joinPath(folderPath, PROJECT_FILE_NAME).fsPath;
-
-    while(parentDir !== getRootUri().fsPath) {
-        parentDir = path.dirname(parentDir);
-
-        let parentDirUri = Uri.parse(parentDir);
-        if(await checkProjectFileExist(parentDirUri)) {
-            return [true, parentDirUri];
-        }
-    }
-
-    return [false, undefined];
-} 
-
-// 生成项目文件路径
-export function createProjectFile(folderPath: Uri): Uri {   
-    let projectFileUri = Uri.joinPath(folderPath, PROJECT_FILE_NAME);
-    let projectFile = new ProjectFile(projectFileUri);
-    projectFile.save();
-
-    return projectFileUri;
 }
