@@ -13,10 +13,14 @@ export class ProjectFile extends ProjectInfo {
     @Exclude()
     private _fileUri: Uri;
 
-    // 使用文件夹初始化
-    constructor(folderUri: Uri, crates: Crate[] = []) {
+    // init with the path of file
+    constructor(fileUri: Uri, crates: Crate[] = []) {
         super(crates);
-        this._fileUri = this.generateFileUri(folderUri);
+        this._fileUri = fileUri;
+
+        // if using folder and append PROJECT_FILE_NAME automatically
+        // this will go wrong when file input is encountered
+        // this._fileUri = this.generateFileUri(folderUri);
     }
 
     async load() {
@@ -31,42 +35,22 @@ export class ProjectFile extends ProjectInfo {
         }
     }
 
-    async save() {
+    save() {
         try {
             // 使用class-transformer保存
-            writeJsonFile(this.fileUri, instanceToPlain(this));
+            writeJsonFile(this._fileUri, instanceToPlain(this));
         } catch(error) {
             throw error;
         }
     }
 
-    /**
-     * 初始化配置信息文件
-     * @deprecated
-     *  */ 
-    init(crate: Crate | undefined) {
-        if(crate === undefined) {
-            // this.fileJson = new ProjectInfo([]);
-        } else {
-            // this.fileJson = new ProjectInfo([crate]);
-        }
-    }
-
-    /**
-     * @deprecated
-     * @param crate 
-     */
-    appendCrate(crate: Crate) {
-        this["crates"].push(crate);
-    }
-
-    private generateFileUri(fileUri: Uri) {
-        // 直接添加rust-project.json
-        return Uri.joinPath(fileUri, PROJECT_FILE_NAME);
-    }
-
     get fileUri() {
         return this._fileUri;
+    }
+    
+    static toProjectFileUri(fileUri: Uri) {
+        // 直接添加rust-project.json
+        return Uri.joinPath(fileUri, PROJECT_FILE_NAME);
     }
 }
 

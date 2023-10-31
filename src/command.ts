@@ -202,8 +202,6 @@ export const createRustProject = commands.registerCommand(
     async (folderUri: Uri) => {
         let settingsFile = getSettingsFile();
 
-        console.log("before: ", settingsFile);
-
         // [deprecated] 检查上级目录是否存在rust-project文件
         // let isExist = settingsFile.checkRustProjectExist(folderUri);
         
@@ -211,7 +209,7 @@ export const createRustProject = commands.registerCommand(
         // it's not necessary to check whether rust-project exists
         let isEmpty = await checkFolderEmpty(folderUri);
 
-        if(isEmpty) {
+        if(!isEmpty) {
             // window.showErrorMessage("The rust-project file has already exists in the parent dirctory. " +
             //     "You can't create a new one.");
             window.showErrorMessage("The folder is not empty.");
@@ -219,13 +217,13 @@ export const createRustProject = commands.registerCommand(
         }
        
         // 保存rust-project.json文件
-        let projectFile = new ProjectFile(folderUri);
+        let projectFile = new ProjectFile(
+            ProjectFile.toProjectFileUri(folderUri)
+        );
         projectFile.save();
         
         // 向settings.json中添加项目信息
         settingsFile.appendProjectInfo(projectFile.fileUri);
         settingsFile.save();
-
-        console.log("after: ", settingsFile);
     }
 );
