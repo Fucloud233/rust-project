@@ -62,6 +62,8 @@ export class SettingsInfo {
 
         let matchingPaths = this.infoPathItems
             .filter((infoPath, _i, _a) => infoPath.startsWith(relativeFolderPath))
+            // get the folder path of file
+            .map((infoPath, _i, _a) => path.dirname(infoPath))
             .sort((a, b) => a.length - b.length);
         
         if(matchingPaths.length === 0) {
