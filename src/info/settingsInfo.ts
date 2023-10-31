@@ -1,6 +1,8 @@
+import * as path from 'path';
 import { Uri } from 'vscode';
-import { ProjectInfo } from "./projectInfo";
 import { Exclude, Expose, Transform, plainToInstance } from 'class-transformer';
+
+import { ProjectInfo } from "./projectInfo";
 import Crate from './Crate';
 import * as utils from '../utils/fs';
 
@@ -14,7 +16,7 @@ export class SettingsInfo {
     private infoItems: ProjectInfo[];
     // 项目信息路径 项 - ruest-project.json路径
     @Exclude()
-    private infoPathItems: String[];
+    private infoPathItems: string[];
 
     constructor() {
         this.infoItems = [];
@@ -49,6 +51,24 @@ export class SettingsInfo {
         }
 
         return false;
+    }
+
+    getLongestMatchingPath(fileUri: Uri): Uri | undefined {
+        if(this.infoPathItems.length === 0) {
+            return undefined;
+        }
+        
+        let relativeFolderPath = path.dirname(utils.getRelativeUri(fileUri));
+
+        let matchingPaths = this.infoPathItems
+            .filter((infoPath, _i, _a) => infoPath.startsWith(relativeFolderPath))
+            .sort((a, b) => a.length - b.length);
+        
+        if(matchingPaths.length === 0) {
+            return undefined;
+        }
+
+        return utils.getAbsoluteUri(matchingPaths[0]);
     }
 
     get cratesFromFirstProject(): Crate[] {
