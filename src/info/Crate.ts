@@ -21,8 +21,8 @@ export default class Crate {
     @Exclude()
     private _deps: Dep[];
 
-    constructor(fileName: Uri=Uri.parse("")) {
-        this._relative_root_module = getRelativeUri(fileName);
+    constructor(fileName: Uri=Uri.parse(""), folderPath: Uri | undefined=undefined) {
+        this._relative_root_module = getRelativeUri(fileName, folderPath);
         this._root_module = fileName;
 
         this.display_name = relativeUriToCrateName(this._relative_root_module);

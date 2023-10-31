@@ -34,8 +34,20 @@ export function uriToString(fileUri: Uri | string): string {
     }
 }
 
-export function getRelativeUri(fileUri: Uri | string): string {
-    return path.relative(getRootUri().fsPath, uriToString(fileUri));
+/**
+ * 
+ * @param fileUri 
+ * @param rootUri 
+ * @returns 
+ */
+export function getRelativeUri(fileUri: Uri | string, 
+        rootUri: Uri | undefined = undefined): string {
+    
+    if(rootUri === undefined) {
+        rootUri = getRootUri();
+    }
+        
+    return path.relative(rootUri.fsPath, uriToString(fileUri));
 }
 
 export function getAbsoluteUri(fileUri: string): Uri {

@@ -31,7 +31,6 @@ async function appendCrateToSettingsFile(fileUri: Uri) {
 
 export async function handleCreate(fileUri: Uri) {
     let settingsFile = getSettingsFile();
-    let crate = new Crate(fileUri);
     
     // longest path matching
     let longestPath = settingsFile.getLongestMatchingPath(fileUri);
@@ -39,13 +38,18 @@ export async function handleCreate(fileUri: Uri) {
     try {
         // the rust-project exists
         if(longestPath !== undefined) {
-            let projectFile = new ProjectFile(longestPath);
+            let crate = new Crate(fileUri, longestPath);
+
+            let projectFile = new ProjectFile(
+                ProjectFile.toProjectFileUri(longestPath)
+            );
             await projectFile.load();
             projectFile.pushCrate(crate);
             projectFile.save();
             return;
         }
 
+        let crate = new Crate(fileUri);
         settingsFile.appendCrateToProjectInfo(crate);
         // [注意] 保存不能写在finally 当出现错误时 可能会空白覆盖
         settingsFile.save();
