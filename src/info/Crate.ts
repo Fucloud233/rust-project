@@ -2,7 +2,7 @@
 import { Exclude, Expose, Type } from "class-transformer";
 import { Uri } from "vscode";
 
-import { getRelativeUri, getRootUri, toAbsoluteUri } from "../utils/fs";
+import { getRelativeUri, getRootUri, toAbsolutePath } from "../utils/fs";
 import { relativeUriToCrateName } from "../utils/info";
 import { projectConfig } from "../config";
 import Dep from "./Dep";
@@ -86,7 +86,7 @@ export default class Crate {
     // update folderPath for correcting the root_module
     // the crate using root_folder as the folderPath
     updateRootModule(folderPath: Uri) {
-        this._root_module = toAbsoluteUri(this.relativeRootModule, folderPath);
+        this._root_module = toAbsolutePath(this.relativeRootModule, folderPath);
     }
 
     get rootModule(): Uri {

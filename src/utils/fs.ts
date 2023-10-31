@@ -34,24 +34,29 @@ export function uriToString(fileUri: Uri | string): string {
     }
 }
 
+// get the relative/absoute uri by customize folderPath
 /**
- * 
- * @param fileUri 
- * @param rootUri 
- * @returns 
+ * @deprecated
  */
 export function getRelativeUri(fileUri: Uri | string, 
-        rootUri: Uri | undefined = undefined): string {
-    
-    if(rootUri === undefined) {
-        rootUri = getRootUri();
-    }
-        
+        rootUri: Uri=getRootUri()): string {
     return path.relative(rootUri.fsPath, uriToString(fileUri));
 }
+/**
+ * @deprecated
+ */
+export function getAbsoluteUri(fileUri: string, 
+        rootUri: Uri=getRootUri()): Uri {
+    return Uri.joinPath(rootUri, fileUri);
+}
 
-export function getAbsoluteUri(fileUri: string): Uri {
-    return Uri.joinPath(getRootUri(), fileUri);
+// Important: it's not allowed to record relative path using vscode.URI
+// So: relative path using string, and absolute using URI
+export function toRelativePath(fileUri: Uri, rootUri: Uri=getRootUri()): string {
+    return path.relative(rootUri.fsPath, uriToString(fileUri));
+}
+export function toAbsolutePath(relativeFilePath: string, rootUri: Uri=getRootUri()): Uri {
+    return Uri.joinPath(rootUri, relativeFilePath);
 }
 
 /**
