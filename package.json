@@ -75,19 +75,6 @@
           ],
           "default": "2021"
         },
-        "rust-project.projectInfo.createMethod": {
-          "description": "The method to Create your project.",
-          "type": "string",
-          "enum": [
-            "auto",
-            "manual"
-          ],
-          "default": "auto",
-          "enumDescriptions": [
-            "All rust source files will be considered executable, and recorded in settings.json file.",
-            "You should create a project maually, but a workspace can only have one project."
-          ]
-        },
         "rust-project.projectInfo.pathType": {
           "description": "Remember to only use the same path type.",
           "type": "string",
