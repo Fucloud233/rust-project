@@ -12,11 +12,14 @@ export const PROJECT_FILE_NAME = "rust-project.json";
 export class ProjectFile extends ProjectInfo {
     @Exclude()
     private _fileUri: Uri;
+    @Exclude()
+    private _folderUri: Uri;
 
     // init with the path of file
-    constructor(fileUri: Uri, crates: Crate[] = []) {
+    constructor(folderUri: Uri, crates: Crate[] = []) {
         super(crates);
-        this._fileUri = fileUri;
+        this._folderUri = folderUri;
+        this._fileUri = ProjectFile.toProjectFileUri(folderUri);
 
         // if using folder and append PROJECT_FILE_NAME automatically
         // this will go wrong when file input is encountered
@@ -29,7 +32,14 @@ export class ProjectFile extends ProjectInfo {
             if(await checkFileExist(this.fileUri)) {
                 loadProjectInfo = await readJsonFile(this.fileUri);
             }
-            Object.assign(this, plainToInstance(ProjectInfo, loadProjectInfo));            
+            Object.assign(this, plainToInstance(ProjectInfo, loadProjectInfo));   
+            
+            // the root_module of crate in the projectFile is incorrect
+            // because the used folder path is root path
+            // so it should be updated using this one
+            this.crates
+                .forEach((crate, _i, _a) => 
+                    crate.updateRootModule(this._folderUri));
         } catch (error) {
             throw error;
         }

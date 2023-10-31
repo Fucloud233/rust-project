@@ -8,7 +8,6 @@ import { BaseError, ExistError } from './error';
 
 export async function handleCreate(fileUri: Uri) {
     let settingsFile = getSettingsFile();
-    
     // longest path matching
     let longestPath = settingsFile.getLongestMatchingPath(fileUri);
     
@@ -23,9 +22,7 @@ export async function handleCreate(fileUri: Uri) {
 
         let crate = new Crate(fileUri, longestPath);
 
-        let projectFile = new ProjectFile(
-            ProjectFile.toProjectFileUri(longestPath)
-        );
+        let projectFile = new ProjectFile(longestPath);
         await projectFile.load();
         projectFile.pushCrate(crate);
         projectFile.save();
@@ -45,6 +42,17 @@ export async function handleCreate(fileUri: Uri) {
 
 export async function handleDelete(fileUri: Uri) {
     let settingsFile = getSettingsFile();
-    settingsFile.removeCrateFromProjectInfo(fileUri);
-    await settingsFile.save();
+    // longest path matching
+    let longestPath = settingsFile.getLongestMatchingPath(fileUri);
+    
+    if(longestPath === undefined) {
+        settingsFile.removeCrateFromProjectInfo(fileUri);
+        await settingsFile.save();
+        return;
+    }
+
+    let projectFile = new ProjectFile(longestPath);
+    await projectFile.load();
+    projectFile.removeCrateWithUri(fileUri);
+    projectFile.save();
 }
