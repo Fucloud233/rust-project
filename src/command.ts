@@ -52,9 +52,8 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
                 throw new BaseError("There are not crates in your workspace.");
             }
     
-            // 2. 获取当前Crate 与其Index
-            let curCrateUri = getRelativeUri(editor.document.fileName);
-            let curCrate = projectInfo.findCrateWithUri(curCrateUri);
+            // 2. get the current Crate
+            let curCrate = projectInfo.findCrateWithUri(editor.document.uri);
     
             // 3. 加载选项 
             assert(curCrate !== undefined);
@@ -112,9 +111,8 @@ export const unimportCrate = commands.registerTextEditorCommand(
                 throw new BaseError("There are not crates in your workspace.");
             }
     
-            // 2. 获取当前Crate 与其Index
-            let curCrateUri = getRelativeUri(editor.document.fileName);
-            let curCrate = projectInfo.findCrateWithUri(curCrateUri);
+            // 2. get the current Crate
+            let curCrate = projectInfo.findCrateWithUri(editor.document.uri);
     
             // 3. 加载选项 
             assert(curCrate !== undefined);
@@ -176,11 +174,12 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
             return;
         }
 
-        let curFileUri = getRelativeUri(editor.document.fileName);
+        // 2. get the current Crate and URI
+        let curFileUri = editor.document.uri;
         let curCrate = projectInfo.findCrateWithUri(curFileUri);
         try {
             if(curCrate===undefined) {
-                throw new CrateNotFoundError(curFileUri);
+                throw new CrateNotFoundError(curFileUri.fsPath);
             }
             // 验证Crates的依赖
             projectInfo.checkCrateDeps(curCrate);
@@ -217,9 +216,7 @@ export const createRustProject = commands.registerCommand(
         }
        
         // 保存rust-project.json文件
-        let projectFile = new ProjectFile(
-            ProjectFile.toProjectFileUri(folderUri)
-        );
+        let projectFile = new ProjectFile(folderUri);
         projectFile.save();
         
         // 向settings.json中添加项目信息

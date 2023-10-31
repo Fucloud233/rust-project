@@ -89,14 +89,7 @@ export class SettingsFile extends SettingsInfo {
             return;
         }        
 
-        const crateIndex = project.findCrateIndexWithUri(fileUri);
-        if(crateIndex === -1) {
-            return;
-        }
-
-        project.removeCrate(crateIndex);
-        // 在删除crate时 crate的相对顺序改变 需要刷新依赖
-        project.refreshDeps();
+        project.removeCrateWithUri(fileUri);
     }
 
     getCratesRelativeUri(): string[] {

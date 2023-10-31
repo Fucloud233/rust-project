@@ -34,6 +34,19 @@ export class ProjectInfo {
 
     removeCrate(index: number) {
         this.crates.splice(index, 1);
+
+        // 在删除crate时 crate的相对顺序改变 需要刷新依赖
+        this.refreshDeps();
+    }
+
+    removeCrateWithUri(fileUri: Uri) {
+        let crateIndex = this.findCrateIndexWithUri(fileUri);
+        if(crateIndex === -1) {
+            return;
+        }
+
+        console.log(crateIndex);
+        this.removeCrate(crateIndex);
     }
 
     pushCrate(crate: Crate) {
@@ -60,7 +73,7 @@ export class ProjectInfo {
             elem => elem.isEqual(crate, isStrict));
     }
 
-    findCrateWithUri(fileUri: Uri | string): Crate | undefined {
+    findCrateWithUri(fileUri: Uri): Crate | undefined {
         if(this.crates === undefined) {
             return undefined;
         }
@@ -81,7 +94,7 @@ export class ProjectInfo {
                 (elem)=>elem.isEqual(crate, isStrict));
     }
 
-    findCrateIndexWithUri(fileUri: Uri | string): number {
+    findCrateIndexWithUri(fileUri: Uri): number {
         return this.crates === undefined ? -1
             : this.crates.findIndex(
                 (elem)=>elem.isEqualWithUri(fileUri));
