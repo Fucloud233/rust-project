@@ -1,32 +1,15 @@
 import * as cp from 'child_process';
 
-import { Exclude, Expose, plainToClass } from 'class-transformer';
-import { IsEnum } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 import * as vscode from 'vscode';
 
 export const EXTENSION_NAME = "rust-project";
 // 配置信息字段名
 const PROJECT_INFO = "projectInfo";
 
-export enum PathType {
-    relative, absolute
-}
-
 class ProjectConfigInfo {
     sysroot: string = "";
     defaultEdition: "2015" | "2018" | "2021" = "2015";
-    @Exclude()
-    private _pathType: PathType = PathType.relative;    
-
-    @Expose({name: "pathType"})
-    @IsEnum(PathType)
-    get pathType(): PathType {
-        return this._pathType;
-    }
-    set pathType(typeStr: string) {
-        let typeKey = typeStr as keyof typeof PathType;
-        this._pathType = PathType[typeKey];
-    }
 }
 
 // [注意] 这一段代码只能放在这里 否则会出现引用错误
