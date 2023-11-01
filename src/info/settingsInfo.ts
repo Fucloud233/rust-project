@@ -34,6 +34,16 @@ export class SettingsInfo {
         }
     }
 
+    popProjectFilePath(projectInfoPath: Uri) {
+        let index = this.infoPathItems
+            .findIndex(value => value === utils.toRelativePath(projectInfoPath));
+        if(index === -1) {
+            return;
+        }
+
+        this.infoPathItems.splice(index, 1);
+    }
+
     /**
      * 传入文件夹路径 验证rust-project是否存在
      * @param folderUri 

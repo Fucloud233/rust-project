@@ -13,11 +13,17 @@
   "publisher": "Fucloud",
   "icon": "images/icon.png",
   "activationEvents": [
+    "onLanguage:rust",
     "workspaceContains:**/*.rs"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "rust-project.initialize",
+        "title": "Initialize",
+        "category": "rust-project"
+      },
       {
         "command": "rust-project.auto.importCrate",
         "title": "Import Crate",
@@ -46,12 +52,23 @@
         "title": "Create rust-project",
         "category": "rust-project",
         "enablement": "explorerResourceIsFolder"
+      },
+      {
+        "command": "rust-project.destroyRustProject",
+        "title": "Destroy rust-project",
+        "category": "rust-project",
+        "enablement": "explorerResourceIsFolder"
       }
     ],
     "menus": {
       "explorer/context":[
         {
           "command": "rust-project.createRustProject",
+          "group": "2_workspace",
+          "when": "explorerResourceIsFolder"
+        },
+        {
+          "command": "rust-project.destroyRustProject",
           "group": "2_workspace",
           "when": "explorerResourceIsFolder"
         }

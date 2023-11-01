@@ -94,6 +94,10 @@ export async function checkFolderEmpty(fileUri: Uri):
     );
 }
 
+export function deleteFile(fileUri: Uri) {
+    vscode.workspace.fs.delete(fileUri);
+};
+
 // 读取文件
 export async function readFile(fileUri: vscode.Uri): Promise<Uint8Array> {
     return await vscode.workspace.fs.readFile(fileUri).then(

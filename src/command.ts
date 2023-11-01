@@ -2,7 +2,8 @@ import { Uri, window, commands, QuickPickItem } from 'vscode';
 import assert = require('assert');
 
 import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
-import { getRelativeUri, checkFolderEmpty } from './utils/fs';
+import { checkFolderEmpty, checkFileExist } from './utils/fs';
+import * as fs from './utils/fs';
 
 import { ProjectFile } from './info/projectFile';
 import { getSettingsFile, reloadSettingsFile } from './info/settingsFile';
@@ -41,6 +42,11 @@ class CrateItem implements QuickPickItem {
         return this.description === fileUri;
     }
 }
+
+export const initialize = commands.registerCommand(
+    "rust-project.initialize",
+    ()=> {}
+);
 
 export const addCrateToCmd = commands.registerTextEditorCommand(
     "rust-project.auto.importCrate",
@@ -155,7 +161,7 @@ export const unimportCrate = commands.registerTextEditorCommand(
 );
 
 export const reloadSettingsFileCmd = commands.registerCommand(
-    "rust-project.auto.reloadSettingsFile",
+    "rust-project.reloadSettingsFile",
     async() => {
         reloadSettingsFile();
     }
@@ -222,5 +228,30 @@ export const createRustProject = commands.registerCommand(
         // 向settings.json中添加项目信息
         settingsFile.appendProjectInfo(projectFile.fileUri);
         settingsFile.save();
+    }
+);
+
+export const destroyRustProject = commands.registerCommand(
+    "rust-project.destroyRustProject",
+    async (folderUri: Uri) => {
+        let projectFile = new ProjectFile(folderUri);
+        let projectFileUri = projectFile.fileUri;
+        if(await checkFileExist(projectFileUri) === undefined) {
+            return;
+        }
+        
+        // check whether projectFile is emtpy
+        await projectFile.load();
+        if(projectFile.crates.length > 0) {
+            window.showErrorMessage("The rust-project.json is not empty.");
+            return;
+        }
+        
+        // delete it in settingsFile and fs
+        let settingsFile = getSettingsFile();
+        settingsFile.popProjectFilePath(projectFileUri);
+        settingsFile.save();
+
+        fs.deleteFile(projectFileUri);
     }
 );
