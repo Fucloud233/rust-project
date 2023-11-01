@@ -2,7 +2,7 @@
   "name": "rust-project",
   "displayName": "rust-project",
   "description": "Create rust project without Cargo.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.82.0"
   },
