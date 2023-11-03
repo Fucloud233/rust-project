@@ -1,9 +1,14 @@
 # Change Log
 
-All notable changes to the "test-fs" extension will be documented in this file.
+## [0.1.0] - 2023.11.03
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Added
 
+- Unite the Auto and Manual Mode
+- Implement create and destroy rust-project
+- Remove the way to store `*.rs` file paths using relative or absolute paths.
+- Translate documents into English
+- Refactor code related to ProjectFile and ProjectInfo
 
 ## [0.0.4] - 2023.10.07
 
