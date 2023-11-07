@@ -1,5 +1,11 @@
 # 开发辅助文档
 
+## 2023.11.07 Exist Bug
+
+1. `settings.json` file isn't created when using `initialize` command
+2. `sysroot` may be not loaded when using `initialize`
+3. `reload` command error 
+
 ## 指令的触发方式
 1. 可以直接设置`commands`
 2. 也可以通过如下方式在菜单栏中配置指令
