@@ -1,5 +1,10 @@
 # 开发辅助文档
 
+
+## 2023.11.11 TODO:
+
+implement some commands about sysroot
+
 ## 2023.11.07 Exist Bug
 
 1. `settings.json` file isn't created when using `initialize` command
