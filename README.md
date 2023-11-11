@@ -1,10 +1,16 @@
 # rust-project
 
-You can use `rust-analyzer` without creating a Cargo project using our extension.
+When we develop a great rust project, cargo is the best tool.
+But sometimes the code we want to write is only in one file,
+such as OJ, or teaching code and etc.
+At this time, using cargo maybe a bit troublesome.
+
+However, `rust-analyzer` doesn't work when meeting single rust file in general.
+Using our extension, you can use it normally.
 
 ## Usage
 
-Make sure to the install `rust-analyzer` extension first, otherwise our extension won't work.
+Make sure to install `rust-analyzer` extension first, otherwise our extension won't work.
 
 ### Basic
 
@@ -36,7 +42,7 @@ Doing so would introduce complications for the logic of our extension.
 > This means that it searches for the `rust-project.json` file with the longest identical path.
 > otherwise we use `settings.json` file.
 > If creating a `rust-project.json` in a non-empty folder is allowed,
-> our logic will break.
+> our logic will be broken.
 >
 > While we may consider further improvement in the future,
 > this is the current behavior.
