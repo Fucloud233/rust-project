@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.1.1] - 2023.11.11
+
+### Added
+
+- Rename create/destroy rust-project into add/remove
+- Create `vscode/settings.json` file when use `Add rust-project to Folder`
+
+### Fixed
+
+- `Reload Settings File` command error
+  
+### Deleted
+
+- Auto init sysroot
+
 ## [0.1.0] - 2023.11.03
 
 ### Added
