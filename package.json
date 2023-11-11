@@ -48,27 +48,27 @@
         "enablement": "resourceExtname==.rs"
       },
       {
-        "command": "rust-project.createRustProject",
-        "title": "Create rust-project",
+        "command": "rust-project.addRustProject",
+        "title": "Add rust-project to Folder",
         "category": "rust-project",
         "enablement": "explorerResourceIsFolder"
       },
       {
-        "command": "rust-project.destroyRustProject",
-        "title": "Destroy rust-project",
+        "command": "rust-project.removeRustProject",
+        "title": "Remove rust-project to Folder",
         "category": "rust-project",
         "enablement": "explorerResourceIsFolder"
       }
     ],
     "menus": {
-      "explorer/context":[
+      "explorer/context": [
         {
-          "command": "rust-project.createRustProject",
+          "command": "rust-project.addRustProject",
           "group": "2_workspace",
           "when": "explorerResourceIsFolder"
         },
         {
-          "command": "rust-project.destroyRustProject",
+          "command": "rust-project.removeRustProject",
           "group": "2_workspace",
           "when": "explorerResourceIsFolder"
         }
