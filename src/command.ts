@@ -1,7 +1,7 @@
 import { Uri, window, commands, QuickPickItem } from 'vscode';
 import assert = require('assert');
 
-import { BaseError, CrateNotFoundError, NOT_KNOW_ERROR } from './error';
+import { BaseError, CrateNotFoundError, handleError } from './error';
 import { checkFolderEmpty, checkFileExist } from './utils/fs';
 import * as fs from './utils/fs';
 
@@ -46,12 +46,16 @@ class CrateItem implements QuickPickItem {
 export const initialize = commands.registerCommand(
     "rust-project.initialize",
     ()=> {
-        let settingsFile = getSettingsFile();
-        // if this file doesn't exist, create it when initializing
-        checkFileExist(settingsFile.fileUri)
-            .then((stat)=>{ if(stat === undefined) {
-                settingsFile.save();
-            } });
+        try {
+            let settingsFile = getSettingsFile(); 
+            // if this file doesn't exist, create it when initializing
+            checkFileExist(settingsFile.fileUri)
+                .then((stat)=>{ if(stat === undefined) {
+                    settingsFile.save();
+                } });
+        } catch(error) {
+            handleError(error);
+        }
     }
 );
 
@@ -104,12 +108,7 @@ export const addCrateToCmd = commands.registerTextEditorCommand(
                 input.dispose();
             });
         } catch(error) {
-            if(error instanceof BaseError) {
-                window.showErrorMessage(error.message);
-            } else {
-                window.showErrorMessage(NOT_KNOW_ERROR);
-                console.log(error);
-            }
+            handleError(error);
         }
     }
 );
@@ -157,12 +156,7 @@ export const unimportCrate = commands.registerTextEditorCommand(
                 input.dispose();
             });
         } catch(error) {
-            if(error instanceof BaseError) {
-                window.showErrorMessage(error.message);
-            } else {
-                window.showErrorMessage(NOT_KNOW_ERROR);
-                console.log(error);
-            }
+            handleError(error);
         }
     }
 );
@@ -199,12 +193,7 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
 
             window.showInformationMessage("The tree of Deps is ok.");
         } catch (error) {
-            if(error instanceof BaseError) {
-                window.showErrorMessage(error.message);
-            } else {
-                window.showErrorMessage(NOT_KNOW_ERROR);
-                console.log(error);
-            }
+            handleError(error);
         }
     }
 );

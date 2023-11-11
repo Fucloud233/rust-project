@@ -1,4 +1,16 @@
-export const NOT_KNOW_ERROR = "Not know error!";
+import { window } from "vscode";
+
+export const NOT_KNOWN_ERROR = "Not known error!";
+
+// implement simple error handle 
+export function handleError(error: any) {
+    if(error instanceof BaseError) {
+        window.showErrorMessage(error.message);
+    } else {
+        window.showErrorMessage(NOT_KNOWN_ERROR);
+        console.log(error);
+    }
+} 
 
 export class BaseError extends Error {
     message: string;
@@ -23,7 +35,7 @@ export class NotFoundError extends BaseError {
 
 export class FileParseError extends BaseError {
     constructor(fileName: string) {
-        super(fileName + ' parsing falied. ');
+        super(fileName + ' parsing failed. ');
     }
 }
 
