@@ -2,7 +2,7 @@ import { Uri } from 'vscode';
 import * as path from 'path';
 import { Exclude, instanceToPlain, plainToClass } from 'class-transformer';
 
-import { checkFile, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
+import { checkFileExist, writeJsonFile, readJsonFile, getRootUri } from '../utils/fs';
 import { BaseError, ExistError, FileParseError, NotFoundError } from '../error';
 import { SettingsInfo } from './settingsInfo';
 import { ProjectInfo }  from './projectInfo';
@@ -30,15 +30,14 @@ export class SettingsFile extends SettingsInfo {
 
     // 读取文件
     async load() {
+        // if settings file exists, use default property
+        if(!await checkFileExist(this.fileUri)) {
+            return;
+        }
+        
         try {
-            // 读取settings文件
-            let readSettingsFile;
-            if(await checkFile(this.fileUri)) {
-                // 读取正常
-                readSettingsFile = await readJsonFile(this.fileUri);
-            }
-            // 使用class-transformer将Object转换为SettingsInfo
-            Object.assign(this,  plainToClass(SettingsInfo, readSettingsFile));   
+            let readInfo = await readJsonFile(this.fileUri);
+            Object.assign(this, plainToClass(SettingsInfo, readInfo));
         } catch {
             throw new FileParseError(`\"${SETTINGS_FILE_NAME}\"`);
         }

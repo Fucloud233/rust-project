@@ -45,7 +45,14 @@ class CrateItem implements QuickPickItem {
 
 export const initialize = commands.registerCommand(
     "rust-project.initialize",
-    ()=> {}
+    ()=> {
+        let settingsFile = getSettingsFile();
+        // if this file doesn't exist, create it when initializing
+        checkFileExist(settingsFile.fileUri)
+            .then((stat)=>{ if(stat === undefined) {
+                settingsFile.save();
+            } });
+    }
 );
 
 export const addCrateToCmd = commands.registerTextEditorCommand(
