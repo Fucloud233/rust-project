@@ -37,7 +37,7 @@
         "enablement": "resourceExtname==.rs"
       },
       {
-        "command": "rust-project.auto.reloadSettingsFile",
+        "command": "rust-project.reloadSettingsFile",
         "title": "Reload Settings File",
         "category": "rust-project"
       },
