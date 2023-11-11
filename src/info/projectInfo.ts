@@ -27,9 +27,6 @@ export class ProjectInfo {
 
     setCrate(crate: Crate, index: number) {
         this.crates[index] = crate;
-
-        console.log("after set:");
-        console.log(this.crates);
     }
 
     removeCrate(index: number) {
@@ -45,7 +42,6 @@ export class ProjectInfo {
             return;
         }
 
-        console.log(crateIndex);
         this.removeCrate(crateIndex);
     }
 
