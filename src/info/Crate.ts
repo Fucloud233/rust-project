@@ -4,7 +4,7 @@ import { Uri } from "vscode";
 
 import { getRelativeUri, getRootUri, toAbsolutePath } from "../utils/fs";
 import { relativeUriToCrateName } from "../utils/info";
-import { projectConfig } from "../config";
+import { ProjectConfigItem, getConfigItem } from "../config";
 import Dep from "./Dep";
 
 export default class Crate {
@@ -25,7 +25,7 @@ export default class Crate {
 
     private display_name: string;
     // [注意] 此处是string类型
-    private "edition": "2015" | "2018" | "2021";
+    private edition: "2015" | "2018" | "2021";
     @Exclude()
     private _deps: Dep[];
 
@@ -35,7 +35,7 @@ export default class Crate {
         this._root_module = fileName;
 
         this.display_name = relativeUriToCrateName(this.root_module);
-        this.edition = projectConfig.defaultEdition;
+        this.edition = getConfigItem(ProjectConfigItem.defaultEdition);
         this._deps = [];
     }
 

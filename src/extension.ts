@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 import { Uri } from 'vscode'; 
 
 import { handleCreate, handleDelete } from './handler';
-import {initConfig} from './config';
 import { checkFile, getRootUri } from './utils/fs';
 import { addCrateToCmd } from './command';
 import { loadSettingsFile } from './info/settingsFile';
@@ -14,8 +13,7 @@ const CARGO_TOML = "Cargo.toml";
 let rsWatcher: vscode.FileSystemWatcher;
 
 export async function activate(context: vscode.ExtensionContext) {
-	// 初始化配置信息
-	initConfig();
+	// initConfig();
 
 	// 初始化 rootUri
 	let rootUri = getRootUri();

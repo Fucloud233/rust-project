@@ -7,7 +7,7 @@ import { Uri }  from 'vscode';
 import { Exclude, Expose, Type } from 'class-transformer';
 import assert = require('assert');
 
-import { projectConfig } from '../config';
+import { getConfigItem, ProjectConfigItem } from '../config';
 import { ImportCyclesError } from '../error';
 import Crate from './Crate';
 import Dep from './Dep';
@@ -21,7 +21,7 @@ export class ProjectInfo {
     private _crates: Crate[];
 
     constructor(crates: Crate[] = []) {
-        this.sysroot = projectConfig.sysroot;
+        this.sysroot = getConfigItem(ProjectConfigItem.sysroot);
         this._crates = crates;
     }
 
