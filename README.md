@@ -12,6 +12,10 @@ Using our extension, you can use it normally.
 
 Make sure to install `rust-analyzer` extension first, otherwise our extension won't work.
 
+And then, you should set `sysroot` in extension settings. 
+If you don't know what it is, 
+you can use `rustc --print sysroot` to get it.
+
 ### Basic
 
 1. Open a empty folder
