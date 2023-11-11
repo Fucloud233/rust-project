@@ -209,8 +209,8 @@ export const checkDepsCmd = commands.registerTextEditorCommand(
     }
 );
 
-export const createRustProject = commands.registerCommand(
-    "rust-project.createRustProject",
+export const addRustProject = commands.registerCommand(
+    "rust-project.addRustProject",
     async (folderUri: Uri) => {
         let settingsFile = getSettingsFile();
 
@@ -238,8 +238,8 @@ export const createRustProject = commands.registerCommand(
     }
 );
 
-export const destroyRustProject = commands.registerCommand(
-    "rust-project.destroyRustProject",
+export const removeRustProject = commands.registerCommand(
+    "rust-project.removeRustProject",
     async (folderUri: Uri) => {
         let projectFile = new ProjectFile(folderUri);
         let projectFileUri = projectFile.fileUri;
