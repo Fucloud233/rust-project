@@ -14,6 +14,9 @@ let rsWatcher: vscode.FileSystemWatcher;
 
 export async function activate(context: vscode.ExtensionContext) {
 	// initConfig();
+	vscode.window.showErrorMessage(
+        "Notice: rust-project may not work properly due to rust-analyzer, but we will fix this problem as soon as possible."
+    );
 
 	// 初始化 rootUri
 	let rootUri = getRootUri();

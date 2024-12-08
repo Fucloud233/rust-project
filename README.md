@@ -10,6 +10,8 @@ Using our extension, you can use it normally.
 
 ## Usage
 
+> **Notice: this extension may not work properly due to `rust-analyzer`, but we will fix this problem as soon as possible.**
+
 Make sure to install `rust-analyzer` extension first, otherwise our extension won't work.
 
 And then, you should set `sysroot` in extension settings. 

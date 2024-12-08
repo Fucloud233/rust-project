@@ -6,6 +6,8 @@
 
 ## 使用方式
 
+> **注意：由于 `rust-analyzer` 影响，这个插件可能不能正常运行，但我们会尽快修复这个问题。
+
 1. 安装好[rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)插件
 2. 在设置中配置参数`sysroot`
    > 如果不清楚可以使用`rustc --print sysroot`命令查看

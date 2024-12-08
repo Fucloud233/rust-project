@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.2] - 2024.11.08
+
+This extension may not work properly due to `rust-analyzer` now.
+
+### Added
+
+- Add notifaction to tell user the problem about this extension. 
+
 ## [0.1.1] - 2023.11.11
 
 ### Added
